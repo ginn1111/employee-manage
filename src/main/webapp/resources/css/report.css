@@ -1,0 +1,64 @@
+.report {
+    padding: 20px;
+    grid-template-columns: 40% 60%;
+    display: grid;
+    gap: 15px;
+    height: calc(100vh - var(--top-bar-height));
+    animation: var(--fadeIn) 500ms;
+}
+
+.table--report {
+    --blue: salmon;
+}
+
+.report .table {
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+
+.utils__title + span {
+    font-size: 16px;
+    width: 50%;
+}
+.utils__container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	justify-content: space-between;
+}
+.utils__container > a {
+	margin-right: 25px;
+    width: 20%;
+    text-align: center;
+}
+.table--salaries > .utils {
+	flex-direction: column;
+}
+
+.content__roles,
+.content__note,
+.content__amount {
+    padding: 12px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.content__roles,
+.header .role {
+    text-align: end;
+}
+
+.content__amount,
+.header .amount {
+    text-align: center;
+}
+.full {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    font-weight: 600;
+}

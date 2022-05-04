@@ -1,0 +1,125 @@
+.shifts-register {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    --w: calc(100% / 8);
+    color: var(--black1);
+}
+
+.shifts-register--read .body__check {
+    pointer-events: none;
+}
+
+.body__check {
+    color: #fff;
+}
+
+.body__check > input[type="checkbox"] {
+	display: none;
+	border: none;
+	outline: none;
+}
+
+
+.body__check.disabled {
+    background-color: var(--black3);
+    pointer-events: none;
+}
+
+.shifts-register + .shifts-register {
+    margin-top: 20px;
+}
+
+.register__header {
+	align-items: center;
+    display: flex;
+    width: 100%;
+    background-color: var(--blue);
+    color: #fff;
+    border-radius: 20px 20px 0 0;
+}
+
+.register__body {
+    width: 100%;
+}
+
+.body__shift,
+.body__check,
+.header__text {
+    padding: 8px;
+    border: 0.5px solid lightblue;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    border-bottom: none;
+    border-right: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.body__shift {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.body__container--salaries > .body__shift:last-child {
+	border-right: 0.5px solid lightblue;
+}
+.header__text {
+    border-top: none;
+    border-bottom: none;
+}
+.header__text:first-child {
+    border-left: none;
+    border-radius: 20px 0 0 0;
+}
+.header__text:last-child {
+    border-right: none;
+    border-radius: 0 20px 0 0;
+}
+.body__container:last-child .body__shift:first-child {
+    border-radius: 0 0 0 20px;
+}
+.body__container:last-child .body__shift:last-child {
+    border-radius: 0 0 20px 0;
+    border-right: 0.5px solid lightblue;
+}
+.body__container:last-child .body__check:last-child {
+    border-radius: 0 0 20px 0;
+}
+.body__container .body__check:last-child {
+    border-right: 0.5px solid lightblue;
+}
+.body__container:last-child .body__check,
+.body__container:last-child .body__shift {
+    border-bottom: 0.5px solid lightblue;
+}
+
+.body__check.checked {
+    background-color: salmon;
+}
+
+.body__container:nth-child(even) {
+    background-color: #dee;
+}
+.body__check {
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+}
+.body__check span {
+    width: 100%;
+    display: block;
+    text-align: start;
+    padding-inline: 8px;
+}
+.body__container {
+    display: flex;
+}
+.body__container:last-child {
+    border-radius: 0 0 20px 20px;
+}
+.salary__container {
+	height: 40vh;
+	overflow-y: auto;
+}

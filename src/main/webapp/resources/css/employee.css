@@ -1,0 +1,27 @@
+.employee.dash-board {
+    padding: 20px;
+    display: grid;
+    gap: 15px;
+    grid-template-columns: 1fr;
+    animation: var(--fadeIn) 500ms;
+}
+.register__container .title,
+.shifts-register .title {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.shifts-register .title {
+    justify-self: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.register__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 100%;
+}

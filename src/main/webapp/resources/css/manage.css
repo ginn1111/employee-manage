@@ -1,0 +1,265 @@
+.manage {
+    font-size: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+.manage__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    padding: 20px;
+    gap: 15px;
+    animation: var(--fadeIn) 200ms;
+}
+.manage__header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header__title {
+    width: 100%;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.header__controller {
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+}
+.btn-add {
+    color: var(--blue);
+}
+
+.btn-add:hover {
+    color: #fff;
+    background-color: var(--blue);
+}
+.btn-remove {
+    color: salmon;
+}
+.btn--customize:disabled {
+    pointer-events: none;
+    color: var(--black2);
+}
+.btn-remove:hover:not(:disabled) {
+    color: #fff;
+    background-color: salmon;
+}
+.manage__table {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.table__head {
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid var(--black2);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: var(--blue);
+    padding-block: 8px;
+    color: #fff;
+    font-weight: 600;
+}
+.table__head > span,
+.table__item > span {
+    text-align: center;
+    flex-basis: 100%;
+}
+.content--salary > span {
+	text-align: start;
+}
+.content--salary > span:nth-child(2) {
+	text-align: end;
+}
+.table__item > input[type="checkbox"] {
+	appearance: none;
+	border: none;
+	outline: none;
+	display: none;
+}
+.table__head--faults {
+    padding-left: 32px;
+}
+
+.table__head--faults > span {
+    text-align: start;
+}
+
+.table__head--faults > span:nth-child(1),
+.table__head--faults > span:nth-child(2),
+.table__body--faults span:nth-child(1),
+.table__body--faults span:nth-child(2) {
+    flex: 1;
+}
+
+.table__body--faults span:nth-child(2) {
+    transform: translateX(25%);
+}
+
+.table__head--faults > span:nth-child(3),
+.table__body--faults span:nth-child(3) {
+    flex: 2;
+}
+
+.manage--tasks {
+    --mn-time: 69px;
+}
+
+.manage--employees .table__item > span:first-child,
+.manage--tasks-for-shift .table__item > span:first-child,
+.manage--tasks .table__item > span:first-child {
+    text-align: start;
+}
+
+.table__body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: calc(var(--mn-card) - var(--mn-height) * 3 + var(--mn-time, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.table__body--faults span {
+    text-align: start;
+}
+
+.table__item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    padding-left: 16px;
+    border-bottom: 1px solid var(--blue);
+    cursor: pointer;
+    transition: background-color 200ms, color 200ms;
+    position: relative;
+    text-decoration: none;
+    color: var(--black1);
+}
+.table__item--uptasks > span:nth-child(3),
+.table__item--tasks > span:nth-child(3) {
+	flex-basis: 30%;
+	text-align: start;
+}
+.table__item--faults > span:nth-child(3) {
+	flex-basis: 15%;
+}
+.table__item:hover,
+.table__item.hovered {
+    background-color: var(--blue);
+    color: #fff;
+}
+.table__item--edit, 
+.table__item--delete {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    font-size: 24px;
+    transform: translate(110%, -50%);
+    transition: transform 400ms;
+    cursor: pointer;
+    padding: 6px;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: var(--black2);
+}
+
+.table__item--edit {
+	color: lightgreen;
+}
+
+.table__item:hover .table__item--delete {
+    transform: translate(0, -50%);
+}
+.content.table__item:hover .table__item--edit {
+	transform: translate(-90%, -50%);
+}
+.table__item.hovered .table__item--edit,
+.table__item:hover .table__item--edit {
+	transform: translate(-120%, -50%);
+}
+
+.table__item.hovered .table__item--delete {
+    color: rgb(255, 70, 70);
+    transform: translate(0, -50%);
+}
+/* TASKS TABLE */
+
+span.head__job,
+.table__item--tasks > span:first-child,
+.table__item--tasks-for-shift > span:first-child {
+    flex: 1;
+}
+
+span.head__job {
+    text-align: start;
+    margin-left: 32px;
+}
+
+span.head__des,
+.table__item--uptasks > span:nth-child(2)
+.table__item--tasks > span:nth-child(2),
+.table__item--tasks-for-shift > span:nth-child(2) {
+    flex: 2;
+    padding-right: 32px;
+    text-align: center;
+}
+span.head__des {
+	flex: 3;
+}
+
+
+.manage__time {
+    font-size: 16px;
+    display: flex;
+    margin-top: 16px;
+    height: var(--mn-time);
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.manage__time--salaries  > label {
+    display: flex;
+    align-items: center;
+    width: 30%;
+}
+
+.manage__time--salaries  > label:first-child {
+	width: 40%;
+}
+
+.manage__time--salaries  > label > .select {
+	margin-left: 12px;
+}
+
+.manage__time .time__shift {
+    margin-left: 12px;
+    display: flex;
+    align-items: center;
+    width: 33%;
+}
+.manage__time .time__shift > div {
+	margin-left: 12px;
+}
+.manage__time .time__date {
+    display: flex;
+    align-items: center;
+}
+
+.manage__time input {
+    margin-left: 8px;
+}
+
+/* EMPLOYEES */

@@ -1,0 +1,64 @@
+.body__tasks {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.body__tasks + .body__tasks {
+    margin-top: 8px;
+}
+
+.btn--task {
+    padding-block: 4px;
+}
+
+.task__title {
+    font-size: 14px;
+    color: var(--black1);
+}
+
+.assignment .body__check {
+    cursor: unset;
+}
+.form--assignment .form__item--action,
+.form--assignment .form__title {
+    margin-inline: auto;
+    text-align: center;
+}
+.form--assignment .form__item {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.item__emp {
+	position: relative;
+}
+
+.item__emp:hover .item__emp--delete {
+	transform: translate(-50%, -50%);
+	opacity: 1;
+}
+
+.item__emp:hover {
+	background: salmon
+}
+
+.form--assignment .item__emp--delete {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -100%);
+	opacity: 0;
+	font-size: 60px;
+	transition: transform 300ms, opacity 300ms;
+	color: currentColor;
+}
+
+.form--assignment .btn--customize {
+    margin: unset;
+}
+.form--assignment .item__emp {
+    margin-bottom: 12px;
+    margin-inline: 8px;
+}
