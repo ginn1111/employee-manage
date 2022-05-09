@@ -72,6 +72,10 @@ $(function() {
 	$('.table__item--edit').click(function() {
 		handleShowDialogEdit.call($(this).parents('.table__item'));
 	});
+	
+	$('.table__item--change-password').click(function() {
+		handleShowDialogEdit.call($(this));
+	});
 
 	$('.btn-remove').click(function() {
 		$('.dialog').fadeIn();

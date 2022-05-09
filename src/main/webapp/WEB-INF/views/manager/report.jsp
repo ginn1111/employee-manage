@@ -14,13 +14,86 @@
 		<!-- Tool bar -->
 
 		<section class="topbar">
-			<tg:topbar role="manager" />
+			<tg:topbar />
 		</section>
 		<!-- Content -->
 		<div class="main__content">
 			<div class="report">
+			
+					
+				<!-- REPORT EVALUATION OF EMP -->
+				<div id="evaluation-of-emps" class="table card table--evaluation-of-emp">
+					<div class="utils">
+						<div class="utils__container">
+							<h5 class="utils__title">Evaluation of employees</h5>
+						</div>
+						<form:form 
+							action="manager/report/statist-num-of-shift.htm#evaluation-of-emps" 
+							class="manage__time manage__time--salaries"
+							modelAttribute="monthYearForStatist"
+						>
+							<label> Month
+								<div class="select">
+									<form:select items="${listMonth}" path="month.month" itemLabel="description" itemValue="month" />
+								</div>
+							</label>
+							<label> Year
+								<div class="select">
+									<form:select items="${listYear}" path="year.year" itemLabel="year" itemValue="year" />
+								</div>
+							</label>
+							
+							<button type="submit" class="btn--customize btn-confirm">Load</button>
+						</form:form>
+					</div>
+					<div class="content content--evaluation-of-emps  content--report header">
+						<span>ID</span> <span>Employee</span> <span>Num of Shift</span> <span>Evaluation</span>
+					</div>
+					<div class="content-box custom-scroll-bar">
+						<c:forEach items="${statistNumOfShiftArray}" var="listStatistNumOfShift" varStatus="status">
+							<div class="content table__item table__item--evaluation-of-emps" data-control="salaries">
+								<span>${listStatistNumOfShift.get(0).idEmployee}</span> 
+								<span>
+									${listStatistNumOfShift.get(0).firstName} ${listStatistNumOfShift.get(0).lastName}
+								</span> 
+								<span class="list-num-of-shift"> 
+									<c:forEach items="${listStatistNumOfShift}" var="statistNumOfShift">
+										<div>
+											<span>${statistNumOfShift.nameOfShift}</span>
+											:
+											<span>${statistNumOfShift.numOfShift}</span>
+										</div>
+									</c:forEach>
+								</span>
+								<span class="content__item custom-scroll-bar">
+									<c:forEach items="${mapStatistEvaluationOfEmp[listStatistNumOfShift.get(0).idEmployee]}"
+										var="listStatistEvaluationOfEmp" >
+										<div>
+											<span>${listStatistEvaluationOfEmp.get(0).nameOfShift}
+												- <fmt:formatDate value="${listStatistEvaluationOfEmp.get(0).date}" pattern="dd/MM/yyyy"/>
+											</span>
+											<br />
+											<ul class="list-statist-evaluation-of-emp">
+												<c:forEach items="${listStatistEvaluationOfEmp}" var="statistEvaluationOfEmp">
+													<li>
+														${statistEvaluationOfEmp.description}
+														<c:if test="${statistEvaluationOfEmp.num > 1}">
+															<span>x ${statistEvaluationOfEmp.num}</span>
+														</c:if>
+													</li>
+												</c:forEach>
+											</ul>
+										</div>
+									</c:forEach>
+								</span>
+							</div>
+						</c:forEach>
+					</div>
+				</div>
+				<!-- REPORT REPORT EVALUATION OF EMP END -->
+			
 				<!-- LACK OF EMPS -->
-				<div class="table card table--report">
+				<div class="card table--report">
 					<div class="utils">
 						<h5 class="utils__title">Lack of employees</h5>
 						<form class="form--filter" action="manager/report/search.htm">
@@ -55,7 +128,7 @@
 				<!-- LACK OF EMPS END -->
 
 				<!-- REPORT SALARY -->
-				<div class="table card table--salaries">
+				<div class="card table--salaries">
 					<div class="utils">
 						<div class="utils__container">
 							<h5 class="utils__title">Employees's salary of month</h5>
@@ -84,7 +157,6 @@
 							<button type="submit" class="btn--customize btn-confirm">Load</button>
 						</form:form>
 					</div>
-					<form action="./" class="get-roles"></form>
 					<div class="content content--report header">
 						<span>Employee</span> <span>Salary</span> <span>Note</span>
 					</div>
@@ -108,6 +180,7 @@
 					</div>
 				</div>
 				<!-- REPORT SALARY END -->
+			
 				<div class="backdrop">
 					<dialog class="modal"> 
 						<form:form 

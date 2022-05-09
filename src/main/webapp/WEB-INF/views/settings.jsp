@@ -30,28 +30,8 @@
 			<div class="dash-board">
 				<div class="card">
 					<div class="manage__header">
-						<h5 class="header__title">Password</h5>
+						<h5 class="header__title">Update soon...</h5>
 					</div>
-					<form 
-						class="form form--password"
-						action="password.htm" 
-						method="POST"
-					>
-						<div class="form__item form__item--password">
-							<label>
-								Old password
-								<input name="old-password" type="password" placeholder="old password..."/>
-							</label>
-							<label>
-								New password
-								<input name="new-password" type="password" placeholder="new password..."/>
-							</label>
-						</div>
-						<div class="form__item--action">
-							<button type="submit" class="btn-confirm btn--customize">Change</button>
-							<button type="reset" class="btn--warning btn--customize">Reset</button>
-						</div>
-					</form>
 				</div>
 			</div>
 		</div>

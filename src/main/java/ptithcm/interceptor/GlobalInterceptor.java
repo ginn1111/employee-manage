@@ -9,8 +9,10 @@ import javax.transaction.Transactional;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import ptithcm.entity.Employee;
 import ptithcm.entity.Shift;
 import ptithcm.utils.MyUtils;
 
@@ -35,6 +37,10 @@ public class GlobalInterceptor extends HandlerInterceptorAdapter{
 			Date dateNow = new Date();
 			request.setAttribute("dateNow", MyUtils.formatDate(MyUtils.DF_DATE, dateNow));
 			request.setAttribute("timeNow", MyUtils.formatDate(MyUtils.DF_TIME, dateNow));
+			request.setAttribute("userInfo", 
+						(Employee) ssFactory.getCurrentSession().get(Employee.class, 
+							SecurityContextHolder.getContext().getAuthentication().getName())
+					);
 		return true;
 	}
 }

@@ -13,12 +13,56 @@
 		<!-- Tool bar -->
 
 		<section class="topbar">
-			<tg:topbar role="manager" />
+			<tg:topbar />
 		</section>
 		<!-- Content -->
 		<div class="main__content">
 			<section class="manage__container">
-			
+
+				<!-- FAULTS -->
+				<div id="faults" class="card manage">
+					<div class="manage__header">
+						<h5 class="header__title">Faults</h5>
+						<div class="header__controller">
+							<a href="manager/manage/faults.htm?new#faults"
+								class="btn--customize btn-add" 
+								data-control="faults"
+							>
+								Add
+							</a>
+							<button class="btn--customize btn-remove btn-remove-faults" disabled>Remove</button>
+						</div>
+					</div>
+					<div class="manage__table">
+						<div class="table__head table__head--faults">
+							<span>Percent</span><span>Description</span>
+						</div>
+						<form:form class="table__body custom-scroll-bar form-faults"
+							action="manager/manage/faults.htm?delete#faults" method="POST"
+							modelAttribute="listFaultDel">
+							<c:forEach items="${listFaultDel.list}" varStatus="status">
+								<div class="table__item table__item--faults"
+									data-control="faults">
+									<form:checkbox
+										value="${faults.get(status.index).idFault}"
+										path="list[${status.index}]" />
+									<span>${faults.get(status.index).percentOfSalary}</span> 
+									<span>${faults.get(status.index).description}</span>
+									<a
+										href="manager/manage/faults/${faults.get(status.index).idFault}.htm#faults">
+										<span class="table__item--edit"> <ion-icon
+												name="pencil-outline"></ion-icon>
+									</span>
+									</a> <span class="table__item--delete"> <ion-icon
+											name="trash-outline"></ion-icon>
+									</span>
+								</div>
+							</c:forEach>
+						</form:form>
+					</div>
+				</div>
+				<!-- FAULTS END -->
+
 				<!-- SHIFTS -->
 				<div id="shifts" class="card manage">
 					<div class="manage__header">
@@ -67,145 +111,6 @@
 					</div>
 				</div>
 				<!-- SHIFTS END -->
-
-				<!-- POSITIONS -->
-				<div id="positions" class="card manage">
-					<div class="manage__header">
-						<h5 class="header__title">Positions</h5>
-						<div class="header__controller">
-							<a href="manager/manage/positions.htm?new#positions"
-								class="btn--customize btn-add" 
-								data-control="positions"
-							>
-								Add
-							</a>
-							<button class="btn--customize btn-remove btn-remove-positions" disabled>Remove</button>
-						</div>
-					</div>
-					<div class="manage__table">
-						<div class="table__head">
-							<span>Position</span><span>Coefficient</span><span>Full Time</span>
-						</div>
-						<form:form class="table__body custom-scroll-bar form-positions"
-							action="manager/manage/positions.htm?delete#positions" method="POST"
-							modelAttribute="listPositionDel">
-							<c:forEach items="${listPositionDel.list}" varStatus="status">
-								<div class="table__item table__item--positions"
-									data-control="positions">
-									<form:checkbox
-										value="${positions.get(status.index).idPosition}"
-										path="list[${status.index}]" />
-									<span>${positions.get(status.index).positionName}</span> <span>${positions.get(status.index).coefficient}</span>
-									<span>${positions.get(status.index).isFullTime ? 'Yes' : 'No'}</span>
-									<a
-										href="manager/manage/positions/${positions.get(status.index).idPosition}.htm#positions">
-										<span class="table__item--edit"> <ion-icon
-												name="pencil-outline"></ion-icon>
-									</span>
-									</a> <span class="table__item--delete"> <ion-icon
-											name="trash-outline"></ion-icon>
-									</span>
-								</div>
-							</c:forEach>
-						</form:form>
-					</div>
-				</div>
-				<!-- POSITIONS END -->
-
-				<!-- FAULTS -->
-				<div id="faults" class="card manage">
-					<div class="manage__header">
-						<h5 class="header__title">Faults</h5>
-						<div class="header__controller">
-							<a href="manager/manage/faults.htm?new#faults"
-								class="btn--customize btn-add" 
-								data-control="faults"
-							>
-								Add
-							</a>
-							<button class="btn--customize btn-remove btn-remove-faults" disabled>Remove</button>
-						</div>
-					</div>
-					<div class="manage__table">
-						<div class="table__head table__head--faults">
-							<span>Percent</span><span>Description</span>
-						</div>
-						<form:form class="table__body custom-scroll-bar form-faults"
-							action="manager/manage/faults.htm?delete#faults" method="POST"
-							modelAttribute="listFaultDel">
-							<c:forEach items="${listFaultDel.list}" varStatus="status">
-								<div class="table__item table__item--faults"
-									data-control="faults">
-									<form:checkbox
-										value="${faults.get(status.index).idFault}"
-										path="list[${status.index}]" />
-									<span>${faults.get(status.index).percentOfSalary}</span> 
-									<span>${faults.get(status.index).description}</span>
-									<a
-										href="manager/manage/faults/${faults.get(status.index).idFault}.htm#faults">
-										<span class="table__item--edit"> <ion-icon
-												name="pencil-outline"></ion-icon>
-									</span>
-									</a> <span class="table__item--delete"> <ion-icon
-											name="trash-outline"></ion-icon>
-									</span>
-								</div>
-							</c:forEach>
-						</form:form>
-					</div>
-				</div>
-				<!-- FAULTS END -->
-
-				<!-- EMPLOYEES -->
-				<div id="employees" class="card manage manage--employees">
-					<div class="manage__header">
-						<h5 class="header__title">Employees</h5>
-						<div class="header__controller">
-							<a href="manager/manage/employees.htm?new#employees"
-								class="btn--customize btn-add" 
-								data-control="employees"
-							>
-								Add
-							</a>
-							<button class="btn--customize btn-remove btn-remove-employees" disabled>Remove</button>
-						</div>
-					</div>
-					<div class="manage__table">
-						<div class="table__head">
-							<span>Name</span><span>Position</span><span>Phone</span>
-						</div>
-						<form:form class="table__body custom-scroll-bar form-employees"
-							action="manager/manage/employees.htm?delete#employees" method="POST"
-							modelAttribute="listEmpDel">
-							<c:forEach items="${listEmpDel.list}" varStatus="status">
-								<div class="table__item table__item--employees"
-									data-control="employees">
-									<form:checkbox
-										value="${employees.get(status.index).idEmployee}"
-										path="list[${status.index}]" />
-									<span>${employees.get(status.index).fullName}</span> 
-									<span>${employees.get(status.index).position.nameAndIsFullTime}</span>
-									<c:set var="tmp" value="${employees.get(status.index).phone}" />
-									<c:set var="phone" value="${fn:trim(tmp)}" />
-									<span>
-										${fn:substring(phone, 0, 3)}
-										${fn:substring(phone, 3, 6)}
-										${fn:substring(phone, 6, 10)}  
-									</span>
-									<a
-										href="manager/manage/employees/${employees.get(status.index).idEmployee}.htm#employees">
-										<span class="table__item--edit"> <ion-icon
-												name="pencil-outline"></ion-icon>
-									</span>
-									</a> <span class="table__item--delete"> <ion-icon
-											name="trash-outline"></ion-icon>
-									</span>
-								</div>
-							</c:forEach>
-						</form:form>
-					</div>
-				</div>
-				<!-- EMPLOYEES END -->
 
 				<!-- TASKS -->
 				<div id="tasks" class="card manage  manage--tasks">
@@ -311,6 +216,114 @@
 				</div>
 				<!-- TASK FOR SHIFTS END -->
 
+				<!-- POSITIONS -->
+				<div id="positions" class="card manage manage--positions">
+					<div class="manage__header">
+						<h5 class="header__title">Positions</h5>
+						<div class="header__controller">
+							<a href="manager/manage/positions.htm?new#positions"
+								class="btn--customize btn-add" 
+								data-control="positions"
+							>
+								Add
+							</a>
+							<button class="btn--customize btn-remove btn-remove-positions" disabled>Remove</button>
+						</div>
+					</div>
+					<div class="manage__table">
+						<div class="table__head">
+							<span>Position</span><span>Coefficient</span><span>Full Time</span><span>Description</span>
+						</div>
+						<form:form class="table__body custom-scroll-bar form-positions"
+							action="manager/manage/positions.htm?delete#positions" method="POST"
+							modelAttribute="listPositionDel">
+							<c:forEach items="${listPositionDel.list}" varStatus="status">
+								<div class="table__item table__item--positions"
+									data-control="positions">
+									<form:checkbox
+										value="${positions.get(status.index).idPosition}"
+										path="list[${status.index}]" />
+									<span>${positions.get(status.index).positionName}</span> <span>${positions.get(status.index).coefficient}</span>
+									<span>${positions.get(status.index).isFullTime ? 'Yes' : 'No'}</span>
+									<span>${positions.get(status.index).description}</span>
+									<a
+										href="manager/manage/positions/${positions.get(status.index).idPosition}.htm#positions">
+										<span class="table__item--edit"> <ion-icon
+												name="pencil-outline"></ion-icon>
+									</span>
+									</a> <span class="table__item--delete"> <ion-icon
+											name="trash-outline"></ion-icon>
+									</span>
+								</div>
+							</c:forEach>
+						</form:form>
+					</div>
+				</div>
+				<!-- POSITIONS END -->
+
+				<!-- EMPLOYEES -->
+				<div id="employees" class="card manage manage--employees">
+					<div class="manage__header">
+						<h5 class="header__title">Employees</h5>
+						<div class="header__controller">
+							<a href="manager/manage/employees.htm?new#employees"
+								class="btn--customize btn-add" 
+								data-control="employees"
+							>
+								Add
+							</a>
+							<button class="btn--customize btn-remove btn-remove-employees" disabled>Remove</button>
+						</div>
+					</div>
+					<div class="manage__table">
+						<div class="table__head">
+							<span>ID</span><span>Name</span><span>Position</span><span>Gender</span><span>Address</span><span>Phone</span>
+						</div>
+						<form:form class="table__body custom-scroll-bar form-employees"
+							action="manager/manage/employees.htm?delete#employees" method="POST"
+							modelAttribute="listEmpDel">
+							<c:forEach items="${listEmpDel.list}" varStatus="status">
+								<div class="table__item table__item--employees"
+									data-control="employees">
+									<form:checkbox
+										value="${employees.get(status.index).idEmployee}"
+										path="list[${status.index}]" />
+									<span>${employees.get(status.index).idEmployee}</span> 
+									<span>${employees.get(status.index).fullName}</span> 
+									<span>${employees.get(status.index).position.nameAndIsFullTime}</span>
+									<span>${employees.get(status.index).gender == 1 ? 'Nam'
+											: employees.get(status.index).gender == 0 ? 'Nữ' : 'Khác'}</span>
+									<span>${employees.get(status.index).address}</span>
+									<c:set var="tmp" value="${employees.get(status.index).phone}" />
+									<c:set var="phone" value="${fn:trim(tmp)}" />
+									<span>
+										${fn:substring(phone, 0, 3)}
+										${fn:substring(phone, 3, 6)}
+										${fn:substring(phone, 6, 10)}  
+									</span>
+									<a
+										href="manager/manage/employees/${employees.get(status.index).idEmployee}.htm?edit#employees">
+										<span class="table__item--edit"> 
+											<ion-icon name="pencil-outline"></ion-icon>
+										</span>
+									</a> 
+									<a
+										href="manager/manage/employees/${employees.get(status.index).idEmployee}.htm?change-password#employees">
+										<span class="table__item--change-password" data-control="change-password">
+											<ion-icon name="key"></ion-icon>
+										</span>
+									</a> 
+									
+									<span class="table__item--delete"> <ion-icon
+											name="trash-outline"></ion-icon>
+									</span>
+								</div>
+							</c:forEach>
+						</form:form>
+					</div>
+				</div>
+				<!-- EMPLOYEES END -->
+				
 				<!-- CONFIRM DIALOG -->
 				<dialog class="dialog">
 					<h5 class="dialog__title">Notify</h5>
@@ -322,6 +335,27 @@
 				</dialog>
 				<div class="backdrop">
 					<dialog class="modal"> 
+					
+					<!-- CHANGE PASSWORD FOR EMP -->
+					<form class="form form--change-password" action="manager/manage/employees/change-password.htm#employees" method="POST">
+						<h5 class="form__title">Change password</h5>
+						<div class="form__item">
+							<label>
+								${employee.idEmployee} - ${employee.fullNameAndPosition}
+							</label>
+						</div>
+						<div class="form__item">
+							<label>
+								New password
+								<input class="form__input" name="new-password" type="password" placeholder="new password..."/>
+							</label>
+						</div>
+						<div class="form__item--action">
+							<button type="submit" class="btn-confirm btn--customize">Change</button>
+							<button type="reset" class="btn-cancel btn--customize">Cancel</button>
+						</div>
+					</form>
+					<!-- CHANGE PASSWORD FOR EMP END-->
 					
 					<!-- FORM EMPLOYEES -->
 					<form:form 
@@ -363,24 +397,23 @@
 									/>
 								</div>
 							</label>
-							
 						</div>
-						<div class="form__item">
+						<div class="form__item form__item--employee">
 							<label>Phone
 								<form:input 
 									path="phone"
 									class="form__input"
 									placeholder="phone..." />
 							</label>
-						</div>
-						<div class="form__item">
-							<label>Address
-								<form:textarea 
-									path="address"
-									class="form__input"
-									placeholder="addess..." 
-									rows="3"
-								/>
+							<label>Gender
+								<div class="select">
+									<form:select 
+										items="${listGender}" 
+										itemLabel="label" 
+										itemValue="value" 
+										path="gender" 
+									/>
+								</div>
 							</label>
 						</div>
 						<div class="form__item form__item--employee">
@@ -402,6 +435,16 @@
 										path="account.role.idRole" 
 									/>
 								</div>
+							</label>
+						</div>
+						<div class="form__item">
+							<label>Address
+								<form:textarea 
+									path="address"
+									class="form__input"
+									placeholder="addess..." 
+									rows="3"
+								/>
 							</label>
 						</div>
 						<div class="form__item--action">
@@ -538,7 +581,7 @@
 						modelAttribute="position" 
 						method="POST"
 					>
-						<h5 class="form__title">Role</h5>
+						<h5 class="form__title">Position</h5>
 						<form:input type="hidden" path="idPosition" />
 						<div class="form__item">
 							<label>Position 

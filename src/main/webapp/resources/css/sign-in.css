@@ -8,13 +8,14 @@
 .input-box {
     position: relative;
 }
-
-.input ~ span {
+.input-box > label {
+	width: 140px;
+}
+.input ~ label {
     position: absolute;
     left: 2%;
     top: 50%;
     transform: translateY(-50%);
-    width: var(--width);
     height: 10px;
     color: #e3e3e3;
     font-size: 12px;
@@ -27,18 +28,19 @@
     padding-inline: 8px;
 }
 
-.input ~ span > ion-icon {
+.input ~ label:hover {
+	cursor: text;
+}
+
+.input ~ label > ion-icon {
     font-size: 21px;
 }
 
-.input.focus ~ span,
-.input:focus ~ span {
+.input.focus ~ label,
+.input:focus ~ label {
     top: 14px;
     left: 3%;
     background-color: #fff;
-}
-
-.input:focus ~ span {
     color: lightblue;
 }
 
@@ -53,7 +55,6 @@ main.sign-in {
 
 .container__sign-in {
     padding: 40px;
-    height: var(--height);
     width: 30%;
     background-color: #fff;
     display: flex;

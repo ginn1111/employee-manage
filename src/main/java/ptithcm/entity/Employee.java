@@ -30,6 +30,9 @@ public class Employee {
 	@Column(name = "phone")
 	private String phone;
 
+	@Column(name="gender")
+	private Integer gender;
+	
 	@ManyToOne
 	@JoinColumn(name = "id_position")
 	private Position position;
@@ -44,9 +47,9 @@ public class Employee {
 
 	@OneToMany(mappedBy = "employee", fetch = FetchType.EAGER)
 	private Collection<TimeTable> timeTables;
-	
+
 	@OneToOne
-	@JoinColumn(name="id_emp")
+	@JoinColumn(name = "id_emp")
 	private Account account;
 
 	public Employee(String idEmployee, String firstName, String lastName, Boolean active, String phone) {
@@ -56,6 +59,14 @@ public class Employee {
 		this.lastName = lastName;
 		this.active = active;
 		this.phone = phone;
+	}
+
+	public Integer getGender() {
+		return gender;
+	}
+
+	public void setGender(Integer gender) {
+		this.gender = gender;
 	}
 
 	public Employee(String idEmployee, String lastName) {
@@ -140,6 +151,10 @@ public class Employee {
 	public String getNameAndPosition() {
 		return this.lastName + (this.position != null ? " - " + this.position.getPositionName() : "");
 	}
+	
+	public String getFullNameAndPosition() {
+		return this.getFullName() + (this.position != null ? " - " + this.position.getPositionName() : "");
+	}
 
 	public String getFullName() {
 		return this.firstName + " " + this.lastName;
@@ -161,6 +176,10 @@ public class Employee {
 		this.birthday = birthday;
 	}
 
+	public String getFullNamePositionAndId() {
+		return this.getFullName() + " - " + this.position.getPositionName() + " (" + this.idEmployee.trim() + ")";
+	}
+
 	public void setAttribute() {
 		if (this.phone.isBlank()) {
 			phone = null;
@@ -177,7 +196,7 @@ public class Employee {
 		this.account.setPassword(MyUtils.passwordEncoder.encode(Account.DEFAULT_PASSWORD));
 		this.account.setEnable(true);
 	}
-	
+
 	public Boolean validatePhone() {
 		if (phone == null)
 			return true;
@@ -192,5 +211,10 @@ public class Employee {
 		Pattern pattern = Pattern.compile("^([0]\\d{2}[- .]?)\\d{3}[- .]?\\d{4}$");
 		Matcher matcher = pattern.matcher(this.phone);
 		return matcher.matches();
+	}
+	
+	public String getFullInfor() {
+		if(this.idEmployee == null) return this.lastName;
+		return this.idEmployee + " - " + this.getNameAndPosition();
 	}
 }

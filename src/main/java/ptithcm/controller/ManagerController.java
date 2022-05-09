@@ -34,6 +34,7 @@ import ptithcm.bean.ChangeEmp;
 import ptithcm.bean.DateForNewTimeTable;
 import ptithcm.bean.DateShiftForUpTask;
 import ptithcm.bean.EvaluationEmp;
+import ptithcm.bean.Gender;
 import ptithcm.bean.ListChangeEmp;
 import ptithcm.bean.ListEmpDelete;
 import ptithcm.bean.ListEvaluationEmp;
@@ -58,6 +59,8 @@ import ptithcm.entity.TimeTable;
 import ptithcm.entity.UpTasks;
 import ptithcm.entity.tmp.JobOfEmpToManager;
 import ptithcm.entity.tmp.LackOfEmployee;
+import ptithcm.entity.tmp.StatistEvaluationOfEmp;
+import ptithcm.entity.tmp.StatistNumOfShift;
 import ptithcm.entity.tmp.Year;
 import ptithcm.utils.MyUtils;
 
@@ -74,7 +77,7 @@ public class ManagerController {
 	private static List<TimeTable> listJobOfEmp;
 	private static DateForNewTimeTable dateForNewTimeTable = new DateForNewTimeTable();
 	private static List<TimeTable> timeTables;
-	// manage
+	// manager
 	private static String link;
 	private static String btnTitle;
 	private static Shift shift = new Shift();
@@ -87,7 +90,10 @@ public class ManagerController {
 	// report
 	private static List<Salary> salaries;
 	private static MonthYear monthYearForReport = new MonthYear();
+	private static MonthYear monthYearForStatist = new MonthYear();
 	private static Salary salary = new Salary();
+	private static List<ArrayList<StatistNumOfShift>> statistNumOfShiftArray;
+	private static Map<String, List<ArrayList<StatistEvaluationOfEmp>>> mapStatistEvaluationOfEmp;
 	//Query
 	private static String queryPosition = "FROM Position AS P WHERE P.deleted=false ORDER BY P.positionName";
 	private static String queryFault = "FROM Fault AS F WHERE F.deleted=false ORDER BY F.percentOfSalary";
@@ -308,8 +314,7 @@ public class ManagerController {
 	public String evaluation(
 				@RequestParam("date") String date,
 				@RequestParam("id_shift") int idShift,
-				@ModelAttribute("listEvaluationEmp") ListEvaluationEmp listEvaluationEmp,
-				HttpSession session
+				@ModelAttribute("listEvaluationEmp") ListEvaluationEmp listEvaluationEmp
 			) throws Exception {
 		
 		filter = date;
@@ -319,7 +324,6 @@ public class ManagerController {
 		
 		List<Evaluate> evaluates;
 		Evaluate evaTmp;
-		String idManager = (String) session.getAttribute("idManager");
 		try {
 			for(var i : listEvaluationEmp.getList()) {
 				if(i.getIdFault() == null) continue;
@@ -335,7 +339,7 @@ public class ManagerController {
 						ss.update(
 								new Evaluate(
 									evaTmp.getIdEvaluate(), 
-									idManager, 
+									ID_MANAGER, 
 									evaTmp.getFault(), 
 									evaTmp.getTimeTable(), 
 									i.getNum()
@@ -348,7 +352,7 @@ public class ManagerController {
 					if(i.getNum() == 0) {
 						message = "Delete failed, employee has not been evaluated yet!";
 					} else {
-						ss.save(new Evaluate(idManager, new Fault(i.getIdFault()), new TimeTable(i.getIdTimeTable()), i.getNum()));
+						ss.save(new Evaluate(ID_MANAGER, new Fault(i.getIdFault()), new TimeTable(i.getIdTimeTable()), i.getNum()));
 						message = "Add evaluation successful!";
 					}
 				}
@@ -761,8 +765,8 @@ public class ManagerController {
 		return "redirect:/manager/manage.htm";
 	}
 	
-	//GET manage/employees/{id}
-	@RequestMapping(value="manage/employees/{id}")
+	//GET manage/employees/{id}?edit
+	@RequestMapping(value="manage/employees/{id}", params = "edit")
 	public String editEmployee(@PathVariable("id") String idEmployee) {
 		employee = (Employee) ssFac.getCurrentSession().get(Employee.class, idEmployee);
 		link="manager/manage/employees.htm?edit";
@@ -770,7 +774,37 @@ public class ManagerController {
 		return "redirect:/manager/manage.htm";
 	}
 	
-	//POST manager/employees?edit
+	//GET manage/employees/{id}?change-password
+	@RequestMapping(value="manage/employees/{id}", params = "change-password")
+	public String changePassword(@PathVariable("id") String idEmployee) {
+		employee = (Employee) ssFac.getCurrentSession().get(Employee.class, idEmployee);
+		link="manager/manage/employees.htm?edit";
+		btnTitle="Update";
+		return "redirect:/manager/manage.htm";
+	}
+		
+	//POST manage/employees/change-password
+	@RequestMapping(value="manage/employees/change-password", method=RequestMethod.POST)
+	public String changePassword1(@RequestParam("new-password") String newPassword) {
+		newPassword = newPassword.trim();
+		if(!ManagerMethod.checkValidPassword(newPassword)) {
+			message = "Password must contain at least one lowercase character, "
+					+ "one uppercase character, one number, no spaces, and at least 8 characters!";
+		} else {
+			if(ManagerMethod.updatePassword(
+					ssFac, 
+					MyUtils.passwordEncoder.encode(newPassword), 
+					(employee.getAccount()))
+				) {
+					message = "Update password successfull!";
+			} else {
+				message = "Update failed, try again!";
+			}
+		}
+		return "redirect:/manager/manage.htm";
+	}
+	
+	//POST manage/employees?edit
 	@RequestMapping(value="manage/employees", method=RequestMethod.POST, params="edit")
 	public String editEmployee(@ModelAttribute("employee") Employee employee) {
 		Session session = ssFac.openSession();
@@ -1011,13 +1045,46 @@ public class ManagerController {
 		}
 		salaries = ManagerMethod
 				.getSalaryFromDatabase(ssFac, monthYearForReport.getMonth().getMonth(), monthYearForReport.getYear().getYear());
-				
+			
+		
+		 statistNumOfShiftArray = ManagerMethod.statistNumOfShiftGroupByEmployee(
+				 			ManagerMethod.statistNumOfShift(
+				 					ssFac, monthYearForStatist.getMonth().getMonth(),
+				 					monthYearForStatist.getYear().getYear()
+							)
+				 	);
+		 
+		 List<StatistEvaluationOfEmp> listStatistEvaluationOfEmp =
+				 	ManagerMethod.statistEvaluationOfEmp(ssFac, monthYearForStatist.getMonth().getMonth(),
+				 				monthYearForStatist.getYear().getYear());
+		 
+		 List<ArrayList<StatistEvaluationOfEmp>> statistEvaluationOfEmpArray =
+				 ManagerMethod.statistEvaluationOfEmpGroupByDateAndShift(listStatistEvaluationOfEmp);
+		 
+		 List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray =
+				 ManagerMethod.statistEvaluationOfEmpGroupByEmployee(statistEvaluationOfEmpArray);
+		 
+		 mapStatistEvaluationOfEmp = 
+				 ManagerMethod.statistEvaluationOfEmpArrayOfArray2Map(statistEvaluationOfEmpArrayOfArray);
+		 
+		for(var i : statistNumOfShiftArray) {
+			System.out.println(i);
+			if(mapStatistEvaluationOfEmp.get(i.get(0).getIdEmployee()) != null) {
+				for(var j : mapStatistEvaluationOfEmp.get(i.get(0).getIdEmployee())) {
+					System.out.println(j);
+				}
+			}
+		}
+			
 		model.addAttribute("monthYear", monthYearForReport);
+		model.addAttribute("monthYearForStatist", monthYearForStatist);
 		model.addAttribute("lackOfEmps", lackOfEmps);
 		model.addAttribute("salaries", salaries);
 		model.addAttribute("salary", salary);
 		model.addAttribute("message", message);
 		model.addAttribute("dateFilter", dateFilter);
+		model.addAttribute("statistNumOfShiftArray", statistNumOfShiftArray);
+		model.addAttribute("mapStatistEvaluationOfEmp", mapStatistEvaluationOfEmp);
 		
 		message = "";
 		
@@ -1077,6 +1144,14 @@ public class ManagerController {
 		return "redirect:/manager/report.htm";
 	}
 	
+	// GET report/statist-num-of-shift
+	@RequestMapping("report/statist-num-of-shift.htm")
+	public String statisttNumOfShift(@ModelAttribute("monthYearForStatist") MonthYear monthYear) {
+		monthYearForStatist.setMonth(monthYear.getMonth());
+		monthYearForStatist.setYear(monthYear.getYear());
+		return "redirect:/manager/report.htm";
+	}
+	
 	/************************************************************************************************************************
 	 * 																														*
 	 * 													PASSWORD															*
@@ -1086,6 +1161,16 @@ public class ManagerController {
 
 	// --------------------------------------------------------------------------------------------------------------------
 
+	@ModelAttribute("listGender")
+	public List<Gender> getListGender() {
+		List<Gender> listGender = new ArrayList<Gender>();
+		listGender.add(new Gender(0, "Nữ"));
+		listGender.add(new Gender(1, "Nam"));
+		listGender.add(new Gender(2, "Khác"));
+		
+		return listGender;
+	}
+	
 	@ModelAttribute("listRole")
 	public List<Role> getListRole() {
 		return ManagerMethod.getListRoleFromDatabase(ssFac);

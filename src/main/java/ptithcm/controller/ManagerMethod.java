@@ -5,7 +5,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,6 +40,8 @@ import ptithcm.entity.TimeTable;
 import ptithcm.entity.UpTasks;
 import ptithcm.entity.tmp.JobOfEmpToManager;
 import ptithcm.entity.tmp.LackOfEmployee;
+import ptithcm.entity.tmp.StatistEvaluationOfEmp;
+import ptithcm.entity.tmp.StatistNumOfShift;
 import ptithcm.utils.MyUtils;
 
 @SuppressWarnings("unchecked")
@@ -350,5 +354,120 @@ public class ManagerMethod {
 			suffix = '0' + suffix;
 		}
 		return suffix;
+	}
+
+	public static List<StatistNumOfShift> statistNumOfShift(SessionFactory session, int month, int year) {
+		return session.getCurrentSession()
+				.getNamedQuery("statistNumOfShift")
+				.setParameter("month", month)
+				.setParameter("year", year)
+				.list();
+	}
+	
+	public static List<StatistEvaluationOfEmp> statistEvaluationOfEmp(SessionFactory session, int month, int year) {
+		return session.getCurrentSession()
+				.getNamedQuery("statistEvaluationOfEmp")
+				.setParameter("month", month)
+				.setParameter("year", year)
+				.list();
+	}
+	
+	public static List<ArrayList<StatistNumOfShift>> statistNumOfShiftGroupByEmployee(List<StatistNumOfShift> listStatistNumOfShift) {
+		listStatistNumOfShift.add(null);
+		List<ArrayList<StatistNumOfShift>> statistNumOfShiftArray = new ArrayList<ArrayList<StatistNumOfShift>>();
+		StatistNumOfShift tmp1, tmp2;
+		ArrayList<StatistNumOfShift> listTmp;
+
+		int i = 0;
+		while (i < listStatistNumOfShift.size()) {
+			tmp1 = listStatistNumOfShift.get(i);
+			if(tmp1 == null) break;
+			listTmp = new ArrayList<StatistNumOfShift>();
+			listTmp.add(tmp1);
+			if (i == listStatistNumOfShift.size() - 1) {
+				statistNumOfShiftArray.add(listTmp);
+				break;
+			}
+			for (int j = i + 1; j < listStatistNumOfShift.size(); j++) {
+				tmp2 = listStatistNumOfShift.get(j);
+				i = j;
+				if(tmp2 == null || !tmp1.getIdEmployee().equals(tmp2.getIdEmployee())) {
+					statistNumOfShiftArray.add(listTmp);
+					break;
+				}
+				listTmp.add(tmp2);
+			}
+		}
+		return statistNumOfShiftArray;
+		
+	}
+	
+	public static List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpGroupByEmployee(List<ArrayList<StatistEvaluationOfEmp>> statistEvaluationOfEmpArray) {
+		statistEvaluationOfEmpArray.add(null);
+		List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray = new ArrayList<ArrayList<ArrayList<StatistEvaluationOfEmp>>>();
+		ArrayList<StatistEvaluationOfEmp> tmp1, tmp2;
+		ArrayList<ArrayList<StatistEvaluationOfEmp>> listTmp;
+
+		int i = 0;
+		while (i < statistEvaluationOfEmpArray.size()) {
+			tmp1 = statistEvaluationOfEmpArray.get(i);
+			if(tmp1 == null) break;
+			listTmp = new ArrayList<ArrayList<StatistEvaluationOfEmp>>();
+			listTmp.add(tmp1);
+			if (i == statistEvaluationOfEmpArray.size() - 1) {
+				statistEvaluationOfEmpArrayOfArray.add(listTmp);
+				break;
+			}
+			for (int j = i + 1; j < statistEvaluationOfEmpArray.size(); j++) {
+				tmp2 = statistEvaluationOfEmpArray.get(j);
+				i = j;
+				if(tmp2 == null || !tmp1.get(0).getIdEmployee().equals(tmp2.get(0).getIdEmployee())) {
+					statistEvaluationOfEmpArrayOfArray.add(listTmp);
+					break;
+				}
+				listTmp.add(tmp2);
+			}
+		}
+		return statistEvaluationOfEmpArrayOfArray;
+	}
+	
+	public static List<ArrayList<StatistEvaluationOfEmp>> statistEvaluationOfEmpGroupByDateAndShift(List<StatistEvaluationOfEmp> listStatistEvaluationOfEmp) {
+		listStatistEvaluationOfEmp.add(null);
+		List<ArrayList<StatistEvaluationOfEmp>> statistEvaluationOfEmpArray = new ArrayList<ArrayList<StatistEvaluationOfEmp>>();
+		StatistEvaluationOfEmp tmp1, tmp2;
+		ArrayList<StatistEvaluationOfEmp> listTmp;
+
+		int i = 0;
+		while (i < listStatistEvaluationOfEmp.size()) {
+			tmp1 = listStatistEvaluationOfEmp.get(i);
+			if(tmp1 == null) break;
+			listTmp = new ArrayList<StatistEvaluationOfEmp>();
+			listTmp.add(tmp1);
+			if (i == listStatistEvaluationOfEmp.size() - 1) {
+				statistEvaluationOfEmpArray.add(listTmp);
+				break;
+			}
+			for (int j = i + 1; j < listStatistEvaluationOfEmp.size(); j++) {
+				tmp2 = listStatistEvaluationOfEmp.get(j);
+				i = j;
+				if(tmp2 == null || !tmp1.getDate().equals(tmp2.getDate())
+						|| !tmp1.getNameOfShift().equals(tmp2.getNameOfShift())) {
+					statistEvaluationOfEmpArray.add(listTmp);
+					break;
+				}
+				listTmp.add(tmp2);
+			}
+		}
+		return statistEvaluationOfEmpArray;
+	}
+	
+	public static Map<String, List<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray2Map(List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray) {
+		Map<String, List<ArrayList<StatistEvaluationOfEmp>>> mapStatistEvaluationOfEmp = new HashMap<String, List<ArrayList<StatistEvaluationOfEmp>>>();
+		
+		for(var i : statistEvaluationOfEmpArrayOfArray) {
+			mapStatistEvaluationOfEmp.put(i.get(0).get(0).getIdEmployee(), i);
+		}
+		
+		return mapStatistEvaluationOfEmp;
 	}
 }

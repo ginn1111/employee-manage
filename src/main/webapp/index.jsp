@@ -8,16 +8,18 @@ main.sign-in {
 </style>
 <tg:dialog-message message="${message}" />
 <main class="sign-in">
-	<form class="container__sign-in" style="-height: 80%" action="${pageContext.request.contextPath}/j_spring_security_check" method="POST">
+	<form class="container__sign-in" style="height: 80%" action="${pageContext.request.contextPath}/j_spring_security_check" method="POST">
 		<h2 class="title">Manage your work easier</h2>
 
 		<div class="input-box">
-			<input type="text" class="input" name="username"/> <span style="-width: 85px"><ion-icon
-					name="person-outline"></ion-icon>Your username</span>
+			<input id="username" type="text" class="input" name="username"/> 
+			<label for="username">
+				<ion-icon name="person-outline"></ion-icon>Your username
+			</label>
 		</div>
 		<div class="input-box">
 
-			<input type="password" class="input" name="password"/>
+			<input id="password" type="password" class="input" name="password"/>
 
 			<div class="toggle-password show">
 				<ion-icon name="eye-off-outline"></ion-icon>
@@ -25,10 +27,10 @@ main.sign-in {
 			<div class="toggle-password">
 				<ion-icon name="eye-outline"></ion-icon>
 			</div>
-			<span style="-width: 130px"> <ion-icon
-					name="lock-closed-outline"></ion-icon> <ion-icon></ion-icon>Your
+			<label for="password"> <ion-icon
+					name="lock-closed-outline"></ion-icon>Your
 				password
-			</span>
+			</label>
 		</div>
 		<input type="submit" class="btn btn--sign-in" value="Continue" />
 		<div></div>

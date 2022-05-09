@@ -1,4 +1,3 @@
-<%@ attribute name="role" required="true" type="java.lang.String"%>
 <div class="toggle">
 	<ion-icon name="menu-outline"></ion-icon>
 </div>
@@ -9,7 +8,7 @@
 <div class="user">
 	<div class="user__infor">
 		<ion-icon name="person-outline"></ion-icon>
-		<span class="user__role">${role}</span>
+		<span class="user__role">${userInfo.fullNamePositionAndId}</span>
 	</div>
 	<div class="user__refesh">
 		<ion-icon name="reload-outline"></ion-icon>

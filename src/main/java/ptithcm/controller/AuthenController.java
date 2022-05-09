@@ -2,6 +2,7 @@ package ptithcm.controller;
 
 import java.security.Principal;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.hibernate.SessionFactory;
@@ -20,7 +21,6 @@ import ptithcm.utils.MyUtils;
 public class AuthenController {
 	
 	private static String message;
-	private static Employee employee;
 	
 	@Autowired
 	SessionFactory ssFac;
@@ -36,9 +36,6 @@ public class AuthenController {
 	@RequestMapping("password")
 	public String password(ModelMap model, Principal principal) {
 		
-		employee = (Employee) ssFac.getCurrentSession().get(Employee.class, principal.getName());
-		
-		model.addAttribute("role", employee.getAccount().getRole().getRoleName());
 		model.addAttribute("message", message);
 		message = "";
 		
@@ -49,11 +46,13 @@ public class AuthenController {
 	@RequestMapping(value="password", method=RequestMethod.POST)
 	public String changePassword(
 				@RequestParam("old-password") String oldPassword,
-				@RequestParam("new-password") String newPassword
+				@RequestParam("new-password") String newPassword,
+				HttpServletRequest request
 			) {
 		
 		oldPassword = oldPassword.trim();
 		newPassword = newPassword.trim();
+		Employee employee = (Employee) request.getAttribute("userInfo");
 		
 		if(!ManagerMethod.checkValidPassword(newPassword)) {
 			message = "Password must contain at least one lowercase character, "
@@ -64,7 +63,7 @@ public class AuthenController {
 				if(ManagerMethod.updatePassword(
 						ssFac, 
 						MyUtils.passwordEncoder.encode(newPassword), 
-						employee.getAccount())
+						(employee.getAccount()))
 					) {
 						message = "Update password successfull!";
 				} else {

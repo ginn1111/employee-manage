@@ -14,7 +14,7 @@
 		<!-- Tool bar -->
 
 		<section class="topbar">
-			<tg:topbar role="manager" />
+			<tg:topbar />
 		</section>
 		<!-- Content -->
 		<div class="main__content">
@@ -199,7 +199,7 @@
 								<c:if test="${listJobOfEmp.get(status.index).employee.position.isFullTime}">
 									<form:select 
 										items="${listEmp}" 
-										itemLabel="nameAndPosition"
+										itemLabel="fullInfor"
 										itemValue="idEmployee"
 										path="listChangeEmp[${status.index}].idEmpAlter"
 										disabled="${listJobOfEmp.get(status.index).works.size() > 0 
@@ -210,7 +210,7 @@
 								<c:if test="${!listJobOfEmp.get(status.index).employee.position.isFullTime}">
 									<form:select 
 										items="${listEmpPartTime}" 
-										itemLabel="nameAndPosition"
+										itemLabel="fullInfor"
 										itemValue="idEmployee"
 										path="listChangeEmp[${status.index}].idEmpAlter"
 										disabled="${listJobOfEmp.get(status.index).works.size() > 0 

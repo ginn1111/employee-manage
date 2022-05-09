@@ -93,7 +93,14 @@
     cursor: pointer;
     font-weight: 300;
 }
-
+.content .content__item {
+	display: flex;
+	flex-direction: column;
+	text-align: start;
+	max-height: 250px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
 .header {
     background-color: var(--blue);
     color: #fff;
@@ -130,6 +137,23 @@
 .content--report > span {
 	text-align: center;
 }
+
+.table__item--evaluation-of-emps > span:nth-child(3),
+.table__item--evaluation-of-emps > span:nth-child(2),
+.content--evaluation-of-emps > span:nth-child(2),
+.content--evaluation-of-emps > span:nth-child(3) {
+	flex: 2;
+}
+
+.table__item--evaluation-of-emps > span:nth-child(1),
+.content--evaluation-of-emps > span:nth-child(1) {
+	flex: 1;
+}
+.table__item--evaluation-of-emps > span:nth-child(4),
+.content--evaluation-of-emps > span:nth-child(4) {
+	flex: 4;
+}
+
 
 .content > span:nth-child(2),
 .content__shift {

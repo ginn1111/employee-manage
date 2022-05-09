@@ -13,7 +13,7 @@
 		<!-- Tool bar -->
 
 		<section class="topbar">
-			<tg:topbar role="employee" />
+			<tg:topbar />
 		</section>
 		<!-- Content -->
 		<div class="main__content">

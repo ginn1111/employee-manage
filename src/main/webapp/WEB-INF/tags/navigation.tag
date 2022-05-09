@@ -34,7 +34,7 @@
 			<span class="icon"> <ion-icon name="${icon2}"></ion-icon>
 		</span> <span class="title">${name2}</span>
 	</a></li>
-	<li><a class="list__item" data-uri="settings" href="#"> <span
+	<li><a class="list__item" data-uri="settings" href="settings.htm"> <span
 			class="icon"> <ion-icon name="settings-outline"></ion-icon>
 		</span> <span class="title">Settings</span>
 	</a></li>

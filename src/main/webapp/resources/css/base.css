@@ -125,7 +125,7 @@ textarea::placeholder {
     top: 50%;
     transform: translateY(-50%);
     display: none;
-    width: 35%;
+    width: 40%;
     margin: auto;
     padding: 16px 24px;
 }
