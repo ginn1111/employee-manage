@@ -17,6 +17,8 @@
 		<!-- Content -->
 		<div class="main__content">
 			<div class="employee dash-board">
+			
+			<!-- SHIFT AND TASK NOW -->
 				<div class="card shifts-register shifts-register--read">
 					<div class="register__title">
 						<span class="title">Task And TimeTable Now</span> <a
@@ -54,6 +56,9 @@
 						</c:forEach>
 					</div>
 				</div>
+				<!-- SHIFT AND TASK NOW END-->
+				
+				<!-- REGISTER SHFIT -->
 				<form:form action="employee/register-shift.htm"
 					modelAttribute="dateShiftArray" class="card register__container">
 					<div class="register__title">
@@ -82,7 +87,6 @@
 										<span>${date[0]}</span> <span>${date[1]}</span>
 									</div>
 								</c:forEach>
-
 							</div>
 
 							<div class="register__body">

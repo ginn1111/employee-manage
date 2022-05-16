@@ -22,12 +22,20 @@ const placeholders = document.querySelectorAll('.input ~ span')
 const inputs = document.querySelectorAll('.input')
 
 inputs.forEach(input => {
-    input.onblur = function(e) {
+    input.addEventListener('blur', function(e) {
         if(e.target.value) {
             this.classList.add('focus')
         } else {
             this.classList.remove('focus')
         }
-    }
+    })
+    if(input.value.trim().length != 0) {
+		console.log(input.value)
+		this.classList.add('focus')
+	}
+	input.addEventListener('change', function() {
+		if(this.value.trim().length !== 0) {
+			this.classList.add('focus')
+		}
+	})
 })
-

@@ -63,7 +63,7 @@ public class EmployeeController {
 		List<Object> jobOfShiftAndDateOfShiftNow =  EmployeeMethod.jobOfShiftGroupByDateAndShift(jobOfShifts);
 		List<Object> jobOfShiftArray = (List<Object>) jobOfShiftAndDateOfShiftNow.get(0);
 		dateOfShiftNow = (List<Object>) jobOfShiftAndDateOfShiftNow.get(1);
-
+		
 		model.addAttribute("dateOfShiftNow", dateOfShiftNow);
 		model.addAttribute("dateOfShift", dateOfShift);
 		model.addAttribute("jobArray", jobOfShiftArray);

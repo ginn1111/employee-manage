@@ -203,6 +203,7 @@
 .table__item:hover .table__item--delete {
     transform: translate(0, -50%);
 }
+.table__item.hovered .table__item--change-password,
 .table__item:hover .table__item--change-password {
 	transform: translate(-240%, -50%);
 }

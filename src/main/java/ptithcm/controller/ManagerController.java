@@ -1066,15 +1066,6 @@ public class ManagerController {
 		 
 		 mapStatistEvaluationOfEmp = 
 				 ManagerMethod.statistEvaluationOfEmpArrayOfArray2Map(statistEvaluationOfEmpArrayOfArray);
-		 
-		for(var i : statistNumOfShiftArray) {
-			System.out.println(i);
-			if(mapStatistEvaluationOfEmp.get(i.get(0).getIdEmployee()) != null) {
-				for(var j : mapStatistEvaluationOfEmp.get(i.get(0).getIdEmployee())) {
-					System.out.println(j);
-				}
-			}
-		}
 			
 		model.addAttribute("monthYear", monthYearForReport);
 		model.addAttribute("monthYearForStatist", monthYearForStatist);

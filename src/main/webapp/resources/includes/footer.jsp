@@ -9,8 +9,8 @@
 <script src="<c:url value="resources/js/topbar.js"/>"></script>
 <script src="<c:url value="resources/js/calendar.js"/>"></script>
 <script src="<c:url value="resources/js/dash-board.js"/>"></script>
-<script src="<c:url value="resources/js/sign-in.js"/>"></script>
 <script src="<c:url value="resources/js/manage.js"/>"></script>
 <script src="<c:url value="resources/js/leader.js"/>"></script>
+<script src="<c:url value="resources/js/sign-in.js"/>"></script>
 </body>
 </html>
