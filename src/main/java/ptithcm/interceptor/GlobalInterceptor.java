@@ -26,17 +26,23 @@ public class GlobalInterceptor extends HandlerInterceptorAdapter{
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-			List<Shift> shifts = ssFactory
-						.getCurrentSession()
-						.createQuery("FROM Shift AS S WHERE S.deleted=false ORDER BY S.name")
-						.list();
-			List<Shift> shiftNow = ssFactory.getCurrentSession().getNamedQuery("getShiftNow").list();
+			List<Shift> shifts = ssFactory.getCurrentSession().getNamedQuery("getShiftsOfTimeTalbe").list();
+			Shift shiftNow = null;
+			Date now = new Date();
+			String dateNow = MyUtils.formatDate(MyUtils.DF_DATE, now);
+			String timeNow = MyUtils.formatDate(MyUtils.DF_TIME, now);
+			for(var i : shifts) {
+				if(i.getTimeStart().toString().compareTo(timeNow) <= 0 &&
+					i.getTimeEnd().toString().compareTo(timeNow) >= 0) {
+					shiftNow = i;
+					break;
+				}
+			}
+
 			request.setAttribute("shifts", shifts);
-			request.setAttribute("shiftNow", shiftNow.size() == 0 ? "Ngoài thời gian" : shiftNow.get(0));
-			
-			Date dateNow = new Date();
-			request.setAttribute("dateNow", MyUtils.formatDate(MyUtils.DF_DATE, dateNow));
-			request.setAttribute("timeNow", MyUtils.formatDate(MyUtils.DF_TIME, dateNow));
+			request.setAttribute("shiftNow",  shiftNow == null ? "Ngoài thời gian" : shiftNow);
+			request.setAttribute("dateNow", dateNow);
+			request.setAttribute("timeNow", timeNow);
 			request.setAttribute("userInfo", 
 						(Employee) ssFactory.getCurrentSession().get(Employee.class, 
 							SecurityContextHolder.getContext().getAuthentication().getName())

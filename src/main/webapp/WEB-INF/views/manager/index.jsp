@@ -7,8 +7,11 @@
 	<!-- Navigation -->
 	<nav class="navigation active">
 		<tg:navigation prefix="manager" link1="./manage.htm"
-			link2="./report.htm" uri1="manage" uri2="report" name1="Manage"
-			name2="Report" icon1="book-outline" icon2="clipboard-outline" />
+			link2="./report.htm" link3="./employees.htm" link4="./tasks.htm"
+			uri1="manage" uri2="report" uri3="employees" uri4="tasks"
+			name1="Manage" name2="Report" name3="Employees" name4="Tasks"
+			icon1="book-outline" icon2="clipboard-outline" icon3="person-outline" icon4="flask-outline" 
+		/>
 	</nav>
 	<div class="main active">
 		<!-- Tool bar -->
@@ -154,6 +157,12 @@
 				</div>
 				<!-- TIME TABLE END-->
 			
+				<!-- CHART -->
+				<div class="card chart">
+					<span id="loader" class="loader"></span>
+				</div>
+				<!-- CHART END -->
+			
 			</div>
 		</div>
 		<!-- FROM -->
@@ -193,7 +202,7 @@
 								path="listChangeEmp[${status.index}].id"
 								value="${listJobOfEmp.get(status.index).idTimeTable}" 
 							/>
-							<div class="${listJobOfEmp.get(status.index).works.size() > 0 
+							<div class="${listJobOfEmp.get(status.index).works.size() > 0
 										? 'disabled' 
 										: ''} select" >
 								<c:if test="${listJobOfEmp.get(status.index).employee.position.isFullTime}">

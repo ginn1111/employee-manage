@@ -35,17 +35,16 @@ body {
 		color: red;
 	}
 
-.custom-scroll-bar::-webkit-scrollbar {
-    width: 5px;
-}
-
 .custom-scroll-bar::-webkit-scrollbar-track {
     background-color: #fff;
 }
 
+.custom-scroll-bar::-webkit-scrollbar,
 .custom-scroll-bar::-webkit-scrollbar-thumb {
-    background: var(--blue);
+	color: var(--blue);
+	background-color: var(--blue);
     border-radius: 50px;
+    width: 5px;
 }
 
 /* MODAL */
@@ -259,6 +258,9 @@ textarea::placeholder {
     color: var(--blue);
     text-align: center;
 }
+.btn-confirm.tasks {
+	margin-left: auto;
+}
 .btn-confirm:hover {
     color: #fff;
     background-color: var(--blue);
@@ -379,3 +381,50 @@ textarea:focus {
         opacity: 0;
     }
 }
+
+@media only screen and (max-width: 750px) {
+	.topbar {
+		width: 100%;
+	}
+}
+
+.chart {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: all 1000ms linear;
+}
+.loader {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        position: relative;
+        animation: rotate 1s linear infinite
+      }
+      .loader::before , .loader::after {
+        content: "";
+        box-sizing: border-box;
+        position: absolute;
+        inset: 0px;
+        border-radius: 50%;
+        border: 5px solid #ccc;
+        animation: prixClipFix 2s linear infinite ;
+      }
+      .loader::after{
+        border-color: var(--blue);
+        animation: prixClipFix 2s linear infinite , rotate 0.5s linear infinite reverse;
+        inset: 6px;
+      }
+
+      @keyframes rotate {
+        0%   {transform: rotate(0deg)}
+        100%   {transform: rotate(360deg)}
+      }
+
+      @keyframes prixClipFix {
+          0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
+          25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
+          50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+          75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 100%)}
+          100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 0)}
+      }

@@ -8,8 +8,11 @@
 	<nav class="navigation active">
 		<c:if test="${userInfo.account.role.roleName == 'Manager' }">
 			<tg:navigation prefix="manager" link1="./manage.htm"
-				link2="./report.htm" uri1="manage" uri2="report" name1="Manage"
-				name2="Report" icon1="book-outline" icon2="clipboard-outline" />
+				link2="./report.htm" link3="./employees.htm" link4="./tasks.htm"
+				uri1="manage" uri2="report" uri3="employees" uri4="tasks"
+				name1="Manage" name2="Report" name3="Employees" name4="Tasks"
+				icon1="book-outline" icon2="clipboard-outline" icon3="person-outline" icon4="flask-outline" 
+			/>
 		</c:if>
 		
 		<c:if test="${userInfo.account.role.roleName != 'Manager' }">

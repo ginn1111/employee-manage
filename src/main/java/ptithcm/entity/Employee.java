@@ -11,6 +11,21 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import ptithcm.utils.MyUtils;
 
+@NamedNativeQueries(
+		{
+			@NamedNativeQuery(
+					name="loadmoreEmployees", 
+					query="exec sp_loadmore_employees :load_more, :offset", 
+					resultClass = Employee.class
+			),
+			@NamedNativeQuery(
+					name="searchEmployee", 
+					query="exec sp_search_employee :filter", 
+					resultClass = Employee.class
+			)
+		}
+)
+
 @Entity
 @Table(name = "Employee")
 public class Employee {

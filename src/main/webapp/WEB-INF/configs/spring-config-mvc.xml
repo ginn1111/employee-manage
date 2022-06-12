@@ -17,7 +17,6 @@
 	<!-- Spring MVC Annotation -->
 	<context:annotation-config />
 	<mvc:annotation-driven />
-
 	<!-- Cấu hình view -->
 	<bean id="viewResolver" p:prefix="/WEB-INF/views/" p:suffix=".jsp"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver" />
@@ -25,7 +24,6 @@
 	<!-- Cấu hình package chứa các controller -->
 	<context:component-scan
 		base-package="ptithcm.controller, ptithcm.entity" />
-
 
  	<bean id="mySuccess" class="ptithcm.auth.MyAuthenSucessHandler"> </bean>
  	<bean id="customAuthenticationProvider" class="ptithcm.auth.CustomAuthenticationProvider"> </bean>
@@ -41,5 +39,4 @@
 			</list>
 		</property>
 	</bean>
-
 </beans>

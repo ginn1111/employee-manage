@@ -38,17 +38,18 @@ $(function() {
 	}
 
 	function enableBtnRemove(suffix) {
+		let check;
 		$(`.table__item--${suffix} .table__item--delete`).click(function(event) {
 			event.stopPropagation();
 			const parent = $(this).parent();
 			parent.toggleClass('hovered');
+			check = parent.children('input[type="checkbox"]');
 			if ($(`.table__item--${suffix}.hovered`).length > 0) {
 				$(`.btn-remove-${suffix}`).attr('disabled', false);
-				parent.children('input[type="checkbox"]').attr('checked', true);
 			} else {
 				$(`.btn-remove-${suffix}`).attr('disabled', true);
-				parent.children('input[type="checkbox"]').attr('checked', false);
 			}
+			check.prop('checked', !check.is(':checked'))
 		});
 	}
 	
@@ -76,7 +77,11 @@ $(function() {
 	$('.table__item--change-password').click(function() {
 		handleShowDialogEdit.call($(this));
 	});
-
+	
+	$('.table__item input[type="checkbox"]').click(function(e) {
+		e.preventDefault();
+	});
+	
 	$('.btn-remove').click(function() {
 		$('.dialog').fadeIn();
 		$('.backdrop').fadeIn();

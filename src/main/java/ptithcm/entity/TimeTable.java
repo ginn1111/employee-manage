@@ -10,7 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @NamedNativeQueries({
 		@NamedNativeQuery(
 				name = "getEmpOfShiftNow", 
-				query = "exec sp_get_emp_of_shift_now", 
+				query = "exec sp_get_emp_of_shift_now :id_shift", 
 				resultClass = TimeTable.class
 		),
 		@NamedNativeQuery(

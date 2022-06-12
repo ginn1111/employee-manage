@@ -54,6 +54,22 @@ public class ManagerMethod {
 		return match.matches();
 	}
 	
+
+	public static String checkValidateTime(SessionFactory session, Time timeStart, Time timeEnd, int idShift) {
+		if(timeStart.compareTo(timeEnd) >= 0)
+			return "Time end must is greater than time start";
+		List<Shift> listShift = getShiftsFromDatabase(session);
+		for(var shift : listShift) {
+			if(shift.getIdShift() == idShift) continue;
+			if(timeStart.compareTo(shift.getTimeStart()) >= 0 && timeEnd.compareTo(shift.getTimeEnd()) <= 0 ||
+					timeStart.compareTo(shift.getTimeStart()) <= 0 && timeEnd.compareTo(shift.getTimeEnd()) >= 0) {
+				return "Time of shift must not nest each other";
+			}
+		}
+		return null;
+	}
+	
+	
 	public static Boolean updatePassword(SessionFactory session, String password, Account account) {
 		Session ss = session.openSession();
 		Transaction t = ss.beginTransaction();
@@ -77,11 +93,19 @@ public class ManagerMethod {
 		if(!o.getClass().getSimpleName().equals("String")) {
 			return ((Shift) o).getIdShift();
 		} 
+		Shift minShift =  (Shift) session
+				.getCurrentSession()
+				.createQuery("FROM Shift AS S WHERE S.deleted=0 AND timeStart <= ALL (SELECT S2.timeStart FROM  Shift AS S2 where S2.deleted=0)")
+				.uniqueResult();
+		String now = MyUtils.formatDate(MyUtils.DF_TIME, new Date());
 		
+		if(now.compareTo("00:00") >= 0 && now.compareTo(MyUtils.formatDate(MyUtils.DF_DATE, minShift.getTimeStart())) <= 0) {
+			return minShift.getIdShift();
+		}
 		return (int) session
-					.getCurrentSession()
-					.createQuery("SELECT S.idShift FROM Shift AS S WHERE timeStart <= ALL (SELECT S2.timeStart FROM  Shift AS S2)")
-					.uniqueResult();
+				.getCurrentSession()
+				.createQuery("SELECT S.idShift FROM Shift AS S WHERE S.deleted=0 AND timeStart >= ALL (SELECT S2.timeStart FROM  Shift AS S2 where S2.deleted=0)")
+				.uniqueResult();
 	}
 	
 	public static List<Role> getListRoleFromDatabase(SessionFactory session) {
@@ -111,9 +135,17 @@ public class ManagerMethod {
 				.list();
 	}
 	
-	public static List<TimeTable> getTimeTableNowFromDatabase(SessionFactory session) {
+	public static List<Shift> getShiftsFromDatabase(SessionFactory session) {
+		return session
+				.getCurrentSession()
+				.createQuery("FROM Shift AS S WHERE S.deleted=false ORDER BY S.name")
+				.list();
+	}
+	
+	public static List<TimeTable> getTimeTableNowFromDatabase(SessionFactory session, int idShift) {
 		return session.getCurrentSession()
 				.getNamedQuery("getEmpOfShiftNow")
+				.setParameter("id_shift", idShift)
 				.list();
 	}
 	
@@ -246,8 +278,7 @@ public class ManagerMethod {
 						MyUtils.DF_TIME.format(shift.getTimeEnd()).compareTo(MyUtils.DF_TIME.format(new Time(dateNow.getTime()))) < 0);
 	}
 	
-	public static ListShiftDelete initListShiftDelete(HttpServletRequest request) {
-		List<Shift> shifts = (List<Shift>) request.getAttribute("shifts");
+	public static ListShiftDelete initListShiftDelete(List<Shift> shifts) {
 		ListShiftDelete listShiftDel = new ListShiftDelete();
 		List<Integer> dummyList = new ArrayList<Integer>();
 		for(int i = 0; i < shifts.size(); i++) {
@@ -257,17 +288,14 @@ public class ManagerMethod {
 		return listShiftDel;
 	}
 	
-	public static List<Object> initListEmplDelete(SessionFactory ssFac, String queryEmployee) {
-		List<Employee> employees = ssFac
-				.getCurrentSession()
-				.createQuery(queryEmployee)
-				.list();
+	public static ListEmpDelete initListEmplDelete(List<Employee> employees) {
+		
 		List<String> dummyList = new ArrayList<String>();
 		for(int i = 0; i < employees.size(); i++)
 			dummyList.add(null);
 		
 		ListEmpDelete listEmpDel = new ListEmpDelete(dummyList);
-		return Arrays.asList(employees, listEmpDel);
+		return listEmpDel;
 	}
 	
 	public static List<Object> initListTaskDelete(SessionFactory ssFac, String queryTask) {
@@ -461,7 +489,8 @@ public class ManagerMethod {
 		return statistEvaluationOfEmpArray;
 	}
 	
-	public static Map<String, List<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray2Map(List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray) {
+	public static Map<String, List<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray2Map
+	(List<ArrayList<ArrayList<StatistEvaluationOfEmp>>> statistEvaluationOfEmpArrayOfArray) {
 		Map<String, List<ArrayList<StatistEvaluationOfEmp>>> mapStatistEvaluationOfEmp = new HashMap<String, List<ArrayList<StatistEvaluationOfEmp>>>();
 		
 		for(var i : statistEvaluationOfEmpArrayOfArray) {
@@ -469,5 +498,26 @@ public class ManagerMethod {
 		}
 		
 		return mapStatistEvaluationOfEmp;
+	}
+
+	public static List<Employee> loadmoreEmployee(SessionFactory ssFac, int loadmore, int offset) {
+		return ssFac.getCurrentSession().getNamedQuery("loadmoreEmployees")
+				.setParameter("load_more", loadmore)
+				.setParameter("offset", offset)
+				.list();
+	}
+
+	public static List<Employee> searchEmployee(SessionFactory ssFac, String data){
+		return ssFac.getCurrentSession().getNamedQuery("searchEmployee")
+				.setParameter("filter", data)
+				.list();
+	}
+
+	public static boolean compareShiftDateOfTimeTableWithNow(TimeTable timeTable, Shift shiftNow) {
+		Date now = new Date();
+		
+		return timeTable.getDate().compareTo(now) > 0 ||
+				(timeTable.getShift().getTimeStart().compareTo(shiftNow.getTimeStart()) >= 0 && 
+						timeTable.getDate().toString().compareTo(MyUtils.formatDate(MyUtils.DF_DATE, now)) == 0);
 	}
 }

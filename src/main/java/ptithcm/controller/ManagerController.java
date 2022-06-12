@@ -1,5 +1,7 @@
 package ptithcm.controller;
 
+import java.awt.PageAttributes.MediaType;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
+import org.codehaus.jackson.map.ObjectWriter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -29,6 +32,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.UTF8Writer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ptithcm.bean.ChangeEmp;
 import ptithcm.bean.DateForNewTimeTable;
@@ -50,6 +58,7 @@ import ptithcm.entity.Constants;
 import ptithcm.entity.Employee;
 import ptithcm.entity.Evaluate;
 import ptithcm.entity.Fault;
+import ptithcm.entity.NumOfShiftOfPartTimeEmp;
 import ptithcm.entity.Position;
 import ptithcm.entity.Role;
 import ptithcm.entity.Salary;
@@ -62,6 +71,7 @@ import ptithcm.entity.tmp.LackOfEmployee;
 import ptithcm.entity.tmp.StatistEvaluationOfEmp;
 import ptithcm.entity.tmp.StatistNumOfShift;
 import ptithcm.entity.tmp.Year;
+import ptithcm.utils.ListEmployee;
 import ptithcm.utils.MyUtils;
 
 @Controller
@@ -87,6 +97,12 @@ public class ManagerController {
 	private static Task task = new Task();
 	private static UpTasks tasksForShift = new UpTasks();
 	private static DateShiftForUpTask dateShiftForUpTask;
+	private int loadmoreCoefficient = 3;
+	private int loadmore = loadmoreCoefficient;
+	private List<Employee> employees = ListEmployee.getInstance();
+	private boolean isShowLoadmore = true;
+	private boolean isSearch = false;
+	private String dataSearch;
 	// report
 	private static List<Salary> salaries;
 	private static MonthYear monthYearForReport = new MonthYear();
@@ -125,26 +141,26 @@ public class ManagerController {
 	@RequestMapping("index")
 	public String index(ModelMap model, HttpServletRequest request, Principal principal) throws ParseException {
 		ID_MANAGER = principal.getName();
-		if(jobOfEmpToManager == null) {
-			jobOfEmpToManager = ManagerMethod
-					.getJobOfEmpToManagerFromDatabase(
-								ssFac, new Date(), 
-								ManagerMethod.getIdShiftNow(request, ssFac)
-							);
-		}
+		int idShiftNow = ManagerMethod.getIdShiftNow(request, ssFac);
 		
 		String dateFilter;
 		
 		if(filter == null) {
 			timeTables = ManagerMethod.getTimeTableToManagerFromDatabase(ssFac);
 			dateFilter = MyUtils.formatDate(MyUtils.DF_DATE, new Date());
+			jobOfEmpToManager = ManagerMethod
+					.getJobOfEmpToManagerFromDatabase(
+								ssFac, new Date(), idShiftNow
+							);
 		} else {
 			timeTables = ManagerMethod.getTimeTableToManagerFilterByDate(ssFac, filter);
 			dateFilter = filter;
 			filter = null;
 		}
 		
-		List<TimeTable> listTimeTableNow = ManagerMethod.getTimeTableNowFromDatabase(ssFac);
+	
+		
+		List<TimeTable> listTimeTableNow = ManagerMethod.getTimeTableNowFromDatabase(ssFac, idShiftNow);
 		
 		List<ArrayList<TimeTable>> timeTableArray = ManagerMethod.timeTableGroupByDateAndShift(timeTables);
 		List<ArrayList<JobOfEmpToManager>> jobOfEmpToManagerArray = ManagerMethod
@@ -217,18 +233,30 @@ public class ManagerController {
 					.collect(Collectors.toList());
 		
 		try {
-			for(var i : listIdEmpAlter) {
-				if(i != null && listIdEmp.contains(i)) {
-					message = "Can not update, because Employee already exists!";
-					throw new Exception("Error");
+			TimeTable tt;
+			Integer indexOfListEmp;
+			
+			for(int i = 0; i < listIdEmpAlter.size(); i++) {
+				if(listIdEmpAlter.get(i) != null) {
+					tt = (TimeTable) ssFac.getCurrentSession().get(TimeTable.class, 
+								listChangeEmp.getListChangeEmp().get(i).getId()
+							);
+					indexOfListEmp = listIdEmp.indexOf(listIdEmpAlter.get(i));
+//					Trường hợp nhân viên được thay thế nhưng muốn thay thế lại nhân viên cũ
+					if(tt.getEmployeeAlter() != null && indexOfListEmp >= 0 && indexOfListEmp != i ||
+							listIdEmp.contains(listIdEmpAlter.get(i)) && tt.getEmployeeAlter() == null ) {
+						message = "Can not update, because Employee already exists!";
+						throw new Exception("Error");
+					}
 				}
 			}
+			
 			for(int i = 0; i < listIdEmpAlter.size() - 1 
 						&& message.length() == 0 
 						&& listIdEmpAlter.get(i) != null 
 						&& !listIdEmpAlter.get(i).isBlank()
 					; i++) {
-				for(int j = i + 1; j < listIdEmpAlter.size() && listIdEmpAlter.get(i) != null; j++) {
+				for(int j = 0; j < listIdEmpAlter.size() && listIdEmpAlter.get(i) != null && i != j; j++) {
 					if(listIdEmpAlter.get(i).equals(listIdEmpAlter.get(j))) {
 						message = "Can not update, because there are the same of two Employee!";
 						throw new Exception("Error");
@@ -396,6 +424,18 @@ public class ManagerController {
 		
 		return "redirect:/manager/index.htm";
 	}
+
+	// GET num-of-shift-of-pt-emp
+	@RequestMapping(value="num-of-shift-of-pt-emp",headers= "Accept=*/*;charset=utf-8", produces = { "application/json; charset=utf-8" },
+				method=RequestMethod.GET)
+	@ResponseBody()
+	public String getNumOfShiftOfPartTimeEmp() throws JsonProcessingException {
+		List<NumOfShiftOfPartTimeEmp> res = ssFac.getCurrentSession().getNamedQuery("getNumOfShiftOfPartTimeEmp")
+				.list();
+		com.fasterxml.jackson.databind.ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = new String(ow.writeValueAsBytes(res), StandardCharsets.ISO_8859_1);
+		return json;
+	}
 	
 /************************************************************************************************************************
  * 																														*
@@ -404,48 +444,27 @@ public class ManagerController {
  * **********************************************************************************************************************/
 	// GET manage
 	@RequestMapping("manage")
-	public String manage(ModelMap model, HttpServletRequest request) throws HibernateException, ParseException {
-		
-		if(dateShiftForUpTask == null) {
-			int idShiftNow = ManagerMethod.getIdShiftNow(request, ssFac);
-			dateShiftForUpTask = new DateShiftForUpTask(new Date(), idShiftNow);
-		} 
+	public String manage(ModelMap model) throws HibernateException, ParseException {
+	
+		List<Shift> shifts = ManagerMethod.getShiftsFromDatabase(ssFac);
 		
 		List<Object> initPositionDel = ManagerMethod.initListPositionDelete(ssFac, queryPosition);
 		List<Object> initFaultDel = ManagerMethod.initListFaultDelete(ssFac, queryFault);
-		List<Object> initEmpDel = ManagerMethod.initListEmplDelete(ssFac, queryEmployee);
-		List<Object> initTaskDel = ManagerMethod.initListTaskDelete(ssFac, queryTask);
-		List<Object> initUpTaskDel = ManagerMethod.initListUpTaskDelete(ssFac, queryUpTasks, dateShiftForUpTask);
 		
-		ListShiftDelete listShiftDel = ManagerMethod.initListShiftDelete(request);
+		ListShiftDelete listShiftDel = ManagerMethod.initListShiftDelete(shifts);
 		
 		List<Position> positions = (List<Position>) initPositionDel.get(0);
 		ListPositionDelete listPositionDel = (ListPositionDelete) initPositionDel.get(1);
 		
 		List<Fault> faults = (List<Fault>) initFaultDel.get(0);
 		ListFaultDelete listFaultDel = (ListFaultDelete) initFaultDel.get(1);
-		
-		List<Employee> employees = (List<Employee>) initEmpDel.get(0);
-		ListEmpDelete listEmpDel = (ListEmpDelete) initEmpDel.get(1);
-		
-		List<Task> tasks = (List<Task>) initTaskDel.get(0);
-		ListTaskDelete listTaskDel = (ListTaskDelete) initTaskDel.get(1);
-		
-		
-		List<UpTasks> upTasks = (List<UpTasks>) initUpTaskDel.get(0);
-		ListUpTaskDelete listUpTaskDel = (ListUpTaskDelete) initUpTaskDel.get(1);
-		
+			
 		model.addAttribute("listShiftDel", listShiftDel);
 		model.addAttribute("positions", positions);
 		model.addAttribute("listPositionDel", listPositionDel);
 		model.addAttribute("faults", faults);
 		model.addAttribute("listFaultDel", listFaultDel);
-		model.addAttribute("employees", employees);
-		model.addAttribute("listEmpDel", listEmpDel);
-		model.addAttribute("tasks", tasks);
-		model.addAttribute("listTaskDel", listTaskDel);
-		model.addAttribute("listUpTaskDel", listUpTaskDel);
-		model.addAttribute("upTasks", upTasks);
+		model.addAttribute("allOfShift", shifts);
 		
 		model.addAttribute("message", message);
 		model.addAttribute("link", link);
@@ -453,10 +472,6 @@ public class ManagerController {
 		model.addAttribute("shift", shift);
 		model.addAttribute("position", position);
 		model.addAttribute("fault", fault);
-		model.addAttribute("employee", employee);
-		model.addAttribute("task", task);
-		model.addAttribute("tasksForShift", tasksForShift);
-		model.addAttribute("dateShiftForUpTask", dateShiftForUpTask);
 		
 		message = "";
 		
@@ -477,7 +492,8 @@ public class ManagerController {
 				if(shiftDel == null) continue;
 				shiftTmp = (Shift) session.get(Shift.class, shiftDel);
 				if(shiftTmp.getTimeTables().size() > 0) {
-					shiftTmp.setDeleted(true);
+					message = "Can't delete a shift " + shiftTmp.getName() + " already registered by an employee";
+					throw new Exception("Deleted Shift Exception");
 				} else {
 					session.delete(shiftTmp);
 				}
@@ -498,12 +514,14 @@ public class ManagerController {
 	public String shiftInsert(
 				@ModelAttribute("shift") Shift shift
 			) throws Exception {
-
-		if (!shift.checkValidateTime()) {
-			message = "Time end must is greater than time start";
+		String checkValidTime = ManagerMethod.checkValidateTime(ssFac, shift.getTimeStart(), shift.getTimeEnd(), shift.getIdShift());
+		if (checkValidTime != null) {
+			message = checkValidTime;
+		} else if(shift.getName().trim().length() == 0) {
+			message = "Entered name of shift please!";
 		} else {
 			Session session = ssFac.openSession();
-			Transaction t = session.beginTransaction();
+			Transaction t = session.beginTransaction();	
 			try {
 				shift.setName(MyUtils.formatString(shift.getName()));
 				session.save(shift);
@@ -536,8 +554,9 @@ public class ManagerController {
 	public String editShift(@ModelAttribute("shift") Shift shift) {
 		Session ss = ssFac.openSession();
 		Transaction t = ss.beginTransaction();
-		if (!shift.checkValidateTime()) {
-			message = "Time end must is greater than time start";
+		String checkValidTime = ManagerMethod.checkValidateTime(ssFac, shift.getTimeStart(), shift.getTimeEnd(), shift.getIdShift());
+		if (checkValidTime != null) {
+			message = checkValidTime;
 		} else {
 			try {
 				shift.setName(MyUtils.formatString(shift.getName()));
@@ -584,7 +603,8 @@ public class ManagerController {
 				if(positionDel == null) continue;
 				posTmp = (Position) session.get(Position.class, positionDel);
 				if(posTmp.getEmployees().size() > 0) {
-					posTmp.setDeleted(true);
+					message = "This position " + posTmp.getPositionName() +" is currently occupied by employee, cannot be deleted";
+					throw new Exception("Deleted Position Exception");
 				} else {
 					session.delete(posTmp);
 				}
@@ -617,6 +637,7 @@ public class ManagerController {
 		position.setAttribute();
 		try {
 			session.update(position);
+			
 			t.commit();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -633,17 +654,32 @@ public class ManagerController {
 	public String insertPosition(@ModelAttribute("position") Position position) {
 		Session session = ssFac.openSession();
 		Transaction t = session.beginTransaction();
-		// set attribute and format
-		position.setAttribute();
-		try {
-			session.save(position);
-			t.commit();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			t.rollback();
-		} finally {
-			session.close();
+		if(position.getPositionName().trim().length() == 0) {
+			message = "Entered name of position please!";
+			return "redirect:/manager/manage.htm";
+		} 
+		List<Position> positions = ssFac.getCurrentSession()
+				.createQuery("FROM Position P where P.positionName=:name AND P.isFullTime=:fulltime")
+				.setParameter("name", position.getPositionName())
+				.setParameter("fulltime", position.getIsFullTime())
+				.list();
+		System.out.println(positions.size());
+		if(positions.size() != 0) {
+			message = "Add failed, because this position is existed!";
+		} else {
+			// set attribute and format
+			position.setAttribute();
+			try {
+				session.save(position);
+				t.commit();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				t.rollback();
+			} finally {
+				session.close();
+			}
 		}
+	
 		return "redirect:/manager/manage.htm";
 	}
 
@@ -670,7 +706,8 @@ public class ManagerController {
 				if(faultDel == null) continue;
 				faultTmp = (Fault) session.get(Fault.class, faultDel);
 				if(faultTmp.getEvaluates().size() > 0) {
-					faultTmp.setDeleted(true);
+					message = "This fault " + faultTmp.getDescription() + " is being used to calculate salary, cannot be deleted";
+					throw new Exception("Deleted Fault Exception");
 				} else {
 					session.delete(faultTmp);
 				}
@@ -716,53 +753,110 @@ public class ManagerController {
 	public String insertFault(@ModelAttribute("fault") Fault fault) {
 		Session session = ssFac.openSession();
 		Transaction t = session.beginTransaction();
-		try {
-			session.save(fault);
-			t.commit();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			t.rollback();
-		} finally {
-			session.close();
+		if(fault.getDescription().trim().length() == 0) {
+			message = "Entered description of fault please!";
+		} else {
+			try {
+				session.save(fault);
+				t.commit();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				t.rollback();
+			} finally {
+				session.close();
+			}
 		}
+		
 		return "redirect:/manager/manage.htm";
 	}
 	
 	// -------------------------------------------------- MANAGE/EMPLOYEES -------------------------------------------------
 	
+	// GET /employees
+	@RequestMapping(value="employees")
+	public String employee(ModelMap model) {
+		employees.clear();
+		if(isSearch) {
+			employees.addAll(ManagerMethod.searchEmployee(ssFac, dataSearch));
+			isSearch = false;
+		} else {
+			employees.addAll(ManagerMethod.loadmoreEmployee(ssFac, 0, loadmore));
+			if(loadmore > employees.size()) {
+				loadmore = employees.size();
+				isShowLoadmore = false;
+			} else {
+				isShowLoadmore = true;
+			}
+		}
+		ListEmpDelete listEmpDel = ManagerMethod.initListEmplDelete(employees);
+
+		model.addAttribute("employees", employees);
+		model.addAttribute("listEmpDel", listEmpDel);
+		model.addAttribute("message", message);
+		model.addAttribute("employee", employee);
+		model.addAttribute("link", link);
+		model.addAttribute("btnTitle", btnTitle);
+		model.addAttribute("isShow", isShowLoadmore);
+		
+		message = "";
+		return "/manager/employees";
+	}
+	// GET manage/employees?load-more
+	@RequestMapping(value="manage/employees/{n}", params="load-more")
+	public String loadmoreEmployees(@PathVariable("n") int n) {
+		loadmore = n + loadmoreCoefficient;
+		return "redirect:/manager/employees.htm";
+	}
+	
 	//GET manage/employees?new
 	@RequestMapping(value="manage/employees", params = "new")
-	public String newEmployee(@ModelAttribute("listEmp") List<Employee> emps) {
-		employee = new Employee(ManagerMethod.getNewIdEmployee(emps.get(1).getIdEmployee()));
+	public String newEmployee() {
+		
+		List<Employee> emps = ssFac.getCurrentSession()
+				.createQuery("FROM Employee AS E ORDER BY E.idEmployee DESC").list();
+		
+		employee = new Employee(ManagerMethod.getNewIdEmployee(emps.get(0).getIdEmployee()));
 		link="manager/manage/employees.htm?insert";
 		btnTitle="Add";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 	
 	//POST manage/employees?delete
 	@RequestMapping(value="manage/employees", method=RequestMethod.POST, params="delete")
-	public String employeeDelete(@ModelAttribute("listEmptDel") ListEmpDelete listEmpDel) {
+	public String employeeDelete(@ModelAttribute("listEmptDel") ListEmpDelete listEmpDel, HttpServletRequest request) {
 		Session session = ssFac.openSession();
 		Transaction t = session.beginTransaction();
 		Employee empTmp;
+		Integer idShiftNow = ManagerMethod.getIdShiftNow(request, ssFac);
+		Shift shiftNow = (Shift) ssFac.getCurrentSession().get(Shift.class, idShiftNow);
+		int counter = 0;
 		try {
 			for(var empDel : listEmpDel.getList()) {
 				if(empDel == null) continue;
+				counter++;
 				empTmp = (Employee) session.get(Employee.class, empDel);
 				if(empTmp.getTimeTables().size() > 0) {
 					empTmp.setActive(false);
+					empTmp.getAccount().setEnable(false);
+					for(var timeTableOfEmp : empTmp.getTimeTables()) {
+						if(ManagerMethod.compareShiftDateOfTimeTableWithNow(timeTableOfEmp, shiftNow)) {
+							session.delete(timeTableOfEmp);
+						}
+					}
 				} else {
 					session.delete(empTmp);
 				}
 			}
 			t.commit();
+			if(loadmore > employees.size())
+				loadmore -= counter;
 		} catch (Exception ex) {
 			
 			t.rollback();
 		} finally {
 			session.close();
 		}
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 	
 	//GET manage/employees/{id}?edit
@@ -771,7 +865,7 @@ public class ManagerController {
 		employee = (Employee) ssFac.getCurrentSession().get(Employee.class, idEmployee);
 		link="manager/manage/employees.htm?edit";
 		btnTitle="Update";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 	
 	//GET manage/employees/{id}?change-password
@@ -780,7 +874,7 @@ public class ManagerController {
 		employee = (Employee) ssFac.getCurrentSession().get(Employee.class, idEmployee);
 		link="manager/manage/employees.htm?edit";
 		btnTitle="Update";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 		
 	//POST manage/employees/change-password
@@ -801,7 +895,7 @@ public class ManagerController {
 				message = "Update failed, try again!";
 			}
 		}
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 	
 	//POST manage/employees?edit
@@ -809,12 +903,12 @@ public class ManagerController {
 	public String editEmployee(@ModelAttribute("employee") Employee employee) {
 		Session session = ssFac.openSession();
 		Transaction t = session.beginTransaction();
+		employee.setPosition(ManagerController.employee.getPosition());
+		employee.setAccount(ManagerController.employee.getAccount());
 		// set attribute and format
 		employee.setAttribute();
 		if(!employee.validatePhone()) {
 			message = "Phone is not valid";
-		} else if(employee.getPosition().getIdPosition() == null) {
-			message = "Choose position please!";
 		} else {
 			try {
 				session.update(employee);
@@ -827,7 +921,7 @@ public class ManagerController {
 			}
 		}
 		
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
 	}
 	
 	//POST manage/employees?insert
@@ -838,7 +932,9 @@ public class ManagerController {
 		// set attribute and format
 		employee.setAttribute();
 		employee.setAccountForEmp();
-		if(!employee.validatePhone()) {
+		if(employee.getLastName().trim().length() == 0 || employee.getFirstName().trim().length() == 0) {
+			message = "Entered first name and last name please!";
+		} else if(!employee.validatePhone()) {
 			message = "Phone is not valid";
 		} else if(employee.getPosition().getIdPosition() == null) {
 			message = "Choose position please!";
@@ -849,6 +945,7 @@ public class ManagerController {
 				message = "Account for " + employee.getFullName() + " (Username: " 
 						+ employee.getIdEmployee() + ", Password: " + Account.DEFAULT_PASSWORD + ")";
 				t.commit();
+				isShowLoadmore = true;
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				t.rollback();
@@ -857,10 +954,55 @@ public class ManagerController {
 			}
 		}
 		
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/employees.htm";
+	}
+	
+	//GET manage/employees?search
+	@RequestMapping(value="manage/employees/search", method=RequestMethod.POST)
+	public String searchEmployee(@RequestParam("data") String data) {
+		dataSearch = data.replaceAll(MyUtils.SPECIAL_CHARACTERS, "");
+		if(dataSearch.trim().length() == 0	) {
+			return "redirect:/manager/employees.htm";
+		}
+		isSearch = true;
+		isShowLoadmore = false;
+		return "redirect:/manager/employees.htm";
 	}
 	
 	// -------------------------------------------------- MANAGE/TASK -------------------------------------------------
+	
+	// GET /tasks
+	@RequestMapping(value="tasks")
+	public String tasks(ModelMap model, HttpServletRequest request) throws HibernateException, ParseException {
+		
+		if(dateShiftForUpTask == null) {
+			int idShiftNow = ManagerMethod.getIdShiftNow(request, ssFac);
+			dateShiftForUpTask = new DateShiftForUpTask(new Date(), idShiftNow);
+		} 
+		
+		List<Object> initTaskDel = ManagerMethod.initListTaskDelete(ssFac, queryTask);
+		List<Object> initUpTaskDel = ManagerMethod.initListUpTaskDelete(ssFac, queryUpTasks, dateShiftForUpTask);
+		List<Task> tasks = (List<Task>) initTaskDel.get(0);
+		ListTaskDelete listTaskDel = (ListTaskDelete) initTaskDel.get(1);
+		
+		List<UpTasks> upTasks = (List<UpTasks>) initUpTaskDel.get(0);
+		ListUpTaskDelete listUpTaskDel = (ListUpTaskDelete) initUpTaskDel.get(1);
+		
+		model.addAttribute("tasks", tasks);
+		model.addAttribute("listTaskDel", listTaskDel);
+		model.addAttribute("listUpTaskDel", listUpTaskDel);
+		model.addAttribute("upTasks", upTasks);
+		model.addAttribute("message", message);
+		model.addAttribute("link", link);
+		model.addAttribute("btnTitle", btnTitle);
+		model.addAttribute("message", message);
+		model.addAttribute("task", task);
+		model.addAttribute("tasksForShift", tasksForShift);
+		model.addAttribute("dateShiftForUpTask", dateShiftForUpTask);
+		
+		message = "";
+		return "/manager/tasks";
+	}
 	
 	//GET manage/tasks?new
 	@RequestMapping(value="manage/tasks", params = "new")
@@ -868,7 +1010,7 @@ public class ManagerController {
 		task = new Task();
 		link="manager/manage/tasks.htm?insert";
 		btnTitle="Add";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	//POST manage/tasks?delete
@@ -883,7 +1025,7 @@ public class ManagerController {
 				if(taskDel == null) continue;
 				taskTmp = (Task) session.get(Task.class, taskDel);
 				if(taskTmp.getUpTasks().size() > 0) {
-					taskTmp.setDeleted(true);
+					message = "This task " + taskTmp.getJob() + " has been posted, cannot be deleted";
 				} else {
 					session.delete(taskTmp);
 				}
@@ -895,7 +1037,7 @@ public class ManagerController {
 		} finally {
 			session.close();
 		}
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	//GET manage/tasks/{id}
@@ -904,7 +1046,7 @@ public class ManagerController {
 		task = (Task) ssFac.getCurrentSession().get(Task.class, idTask);
 		link="manager/manage/tasks.htm?edit";
 		btnTitle="Update";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	//POST manage/tasks?edit
@@ -923,7 +1065,7 @@ public class ManagerController {
 		} finally {
 			session.close();
 		}
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	//POST manage/tasks?insert
@@ -931,19 +1073,24 @@ public class ManagerController {
 	public String insertTask(@ModelAttribute("task") Task task) {
 		Session session = ssFac.openSession();
 		Transaction t = session.beginTransaction();
-		task.setJob(MyUtils.formatString(task.getJob()));
-		
-		try {
-			session.save(task);
-			t.commit();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			t.rollback();
-		} finally {
-			session.close();
+		if(task.getJob().trim().length() == 0) {
+			message = "Entered job please!";
+		} else {
+			task.setJob(MyUtils.formatString(task.getJob()));
+			
+			try {
+				session.save(task);
+				t.commit();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				t.rollback();
+			} finally {
+				session.close();
+			}
 		}
 		
-		return "redirect:/manager/manage.htm";
+		
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	
@@ -955,7 +1102,7 @@ public class ManagerController {
 				@ModelAttribute("dateShiftForUpTask") DateShiftForUpTask dateShiftForUpTask
 			) {
 		ManagerController.dateShiftForUpTask = dateShiftForUpTask;
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	// GET manage/uptasks?new
@@ -966,7 +1113,7 @@ public class ManagerController {
 		tasksForShift.setIdShift(dateShiftForUpTask.getShift());
 		link="manager/manage/uptasks.htm?insert";
 		btnTitle="Add";
-		return "redirect:/manager/manage.htm";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	// POST manage/uptasks?delete
@@ -993,7 +1140,7 @@ public class ManagerController {
 		} finally {
 			session.close();
 		}
-		return "redirect:/manager/manage.htm#uptasks";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 	// POST manage/uptasks?insert
@@ -1021,7 +1168,7 @@ public class ManagerController {
 			session.close();
 		}
 
-		return "redirect:/manager/manage.htm#uptasks";
+		return "redirect:/manager/tasks.htm";
 	}
 	
 /************************************************************************************************************************
@@ -1228,7 +1375,6 @@ public class ManagerController {
 					.getCurrentSession()
 					.createQuery(queryPosition)
 					.list();
-		listPosition.add(0, new Position(null, "none"));
 		return listPosition;
 	}
 	
@@ -1260,4 +1406,5 @@ public class ManagerController {
 		listEmpAllDay.add(0, new Employee(null, "none"));
 		return listEmpAllDay;
 	}
+	
 }

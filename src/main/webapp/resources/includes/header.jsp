@@ -1,3 +1,4 @@
+<%@ page language="java" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
@@ -8,7 +9,8 @@
 <head>
 <base href="${pageContext.servletContext.contextPath}/">
 <meta charset="UTF-8">
-<title>Dash board</title>
+<title>Espresso</title>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 <link rel="stylesheet" href="<c:url value="resources/css/sign-in.css"/>">
 <link rel="stylesheet" href="<c:url value="resources/css/base.css"/>">
 <link rel="stylesheet" href="<c:url value="resources/css/style.css"/>">

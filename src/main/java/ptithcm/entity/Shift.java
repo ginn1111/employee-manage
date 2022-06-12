@@ -11,7 +11,9 @@ import javax.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 //@NamedNativeQueries(@NamedNativeQuery(name = "getShiftNow", query = "exec sp_get_shift_now", resultClass = Shift.class))
-@NamedNativeQueries(@NamedNativeQuery(name = "getShiftNow", query = "select * from v_get_shift_now", resultClass = Shift.class))
+@NamedNativeQueries({@NamedNativeQuery(name = "getShiftNow", query = "exec sp_get_shift_now", resultClass = Shift.class),
+		@NamedNativeQuery(name="getShiftsOfTimeTalbe", query=
+				"exec sp_get_shifts_of_time_table", resultClass=Shift.class)})
 
 @Entity
 @Table(name = "Shift")
@@ -143,12 +145,8 @@ public class Shift {
 		this.salary = salary;
 	}
 	
-	public Boolean checkValidateTime() {
-		return this.timeStart.compareTo(timeEnd) < 0;
-	}
-	
 	@Override
 	public String toString() {
-		return this.name + " " + this.salary + " " + this.timeStart;
+		return this.name + " " + this.timeStart;
 	}
 }

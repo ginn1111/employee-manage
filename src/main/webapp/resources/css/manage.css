@@ -1,4 +1,4 @@
-.manage {
+	.manage {
     font-size: 16px;
     width: 100%;
     display: flex;
@@ -16,6 +16,9 @@
     padding: 20px;
     gap: 15px;
     animation: var(--fadeIn) 200ms;
+}
+.manage__container.tasks {
+	 grid-template-columns: unset;
 }
 .manage__header {
     width: 100%;
@@ -119,6 +122,10 @@
 .manage--tasks-for-shift .table__item > span:first-child,
 .manage--tasks .table__item > span:first-child {
     text-align: start;
+}
+
+.manage--employees .table__body {
+    height: calc(100vh - 235px);
 }
 
 .table__body {
@@ -267,7 +274,7 @@ span.head__des {
 }
 
 .manage__time .time__shift {
-    margin-left: 12px;
+    margin-left: 24px;
     display: flex;
     align-items: center;
     width: 33%;

@@ -1,4 +1,4 @@
-const detailHeader = document.querySelector('.details__header');
+ const detailHeader = document.querySelector('.details__header');
 const listDetail = document.querySelector('.list__detail');
 const contents = document.querySelectorAll('.content');
 const searchInput = document.querySelector('.search-box > input');
@@ -19,20 +19,22 @@ if(searchInput) {
 	};
 }
 
+$('.content.disabled .action-wrapper').click(function(e) {
+	e.stopPropagation();
+});
+	
+
 if(searchBox) {
 	searchBox.style.color = 'lightblue';
 	searchInput.onblur = () => {
 	    iconSearch.style.color = '#e3e3e3';
 	    searchBox.style.borderColor = '#e3e3e3';
 	};
-	
-	$('.search-box > input').keydown(function(event) {
+	/*$('.search-box > input').keydown(function(event) {
 		const data = $(this).val().trim();
 		if(event.which === 13) {
-			$('.get-roles').html(`<input type="hidden" name="data" value="${data}" />`);
-			$('.get-roles').attr('action',`manager/search.htm`);
-			$('.get-roles').submit();
+			window.location.href = `manager/manage/employees/search.htm?data=${data}`
 		} 
-	})
+	})*/
 
 }

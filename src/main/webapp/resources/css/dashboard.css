@@ -7,8 +7,6 @@
 
 .dash-board--manager {
     grid-template-columns: 40% 60%;
-    grid-template-rows: 1fr 4fr;
-    height: calc(100vh - var(--top-bar-height));
 }
 
 .utils {
@@ -40,6 +38,7 @@
     border-radius: 25px;
     width: 100%;
     align-items: center;
+    margin-right: 24px;
 }
 
 .search-box > input {
@@ -65,8 +64,13 @@
     align-items: center;
 }
 
+.chart {
+	grid-column: 1/3;
+}
+
 .now {
     font-size: 16px;
+    max-height: 30vh;
 }
 
 .details {
@@ -75,8 +79,8 @@
 }
 
 .table {
-    grid-row-start: 1;
-    grid-row-end: 3;
+    grid-row: 1/3;
+    height: 100%;
 }
 
 .content {
@@ -114,7 +118,8 @@
     color: #fff;
 }
 
-.content:hover .action--change {
+.content:hover .action-wrapper/* ,
+.content:hover .action--change */ {
     transform: translateX(140%);
 }
 .content:hover .action--evaluate  {
@@ -175,7 +180,7 @@
     width: 80px;
 }
 
-.action--change,
+.action-wrapper,
 .action--evaluate {
     display: flex;
     align-items: center;
@@ -190,17 +195,25 @@
 }
 .content.disabled .action-wrapper {
 	cursor: not-allowed;
+	background-color: #ccc;
 }
+
 .content.disabled .action--change  {
 	pointer-events: none;
 	background-color: #cccccc;
 	color: #a6a6a6;
 }
 
-.action--change {
-    color: lightgreen;
+/*.action--change*/ .action-wrapper {
+    
     transform: translateX(300%);
     transition: transform 450ms linear;
+}
+.action--change {
+	color: lightgreen;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 .action--evaluate {
     color: lightcoral;

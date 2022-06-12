@@ -29,7 +29,7 @@ inputs.forEach(input => {
             this.classList.remove('focus')
         }
     })
-    if(input.value.trim().length != 0) {
+    if(input.value.trim().length !== 0) {
 		console.log(input.value)
 		this.classList.add('focus')
 	}

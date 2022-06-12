@@ -1,6 +1,7 @@
 package ptithcm.bean;
 
 public class ChangeEmp {
+	// idTimeTable
 	private int id;
 	private String idEmp;
 	private String idEmpAlter;

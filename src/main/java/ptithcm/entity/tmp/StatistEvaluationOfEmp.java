@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-@NamedNativeQuery(name="statistEvaluationOfEmp", query = "sp_statist_evaluation_of_emp :month, :year", resultClass = StatistEvaluationOfEmp.class)
+@NamedNativeQuery(name="statistEvaluationOfEmp", query = "exec sp_statist_evaluation_of_emp :month, :year", resultClass = StatistEvaluationOfEmp.class)
 
 @Entity
 public class StatistEvaluationOfEmp {

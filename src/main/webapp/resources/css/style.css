@@ -30,6 +30,10 @@
     margin-bottom: 40px;
     pointer-events: none;
 }
+.list li:nth-child(1) > a {
+    display: flex;
+    align-items: center;
+}
 .list li:hover,
 .list li.hovered {
     background-color: var(--white);
@@ -83,6 +87,7 @@
     display: inline-block;
     height: 40px;
     line-height: 40px;
+    margin-left: 12px;
 } 
 .main {
     position: absolute;

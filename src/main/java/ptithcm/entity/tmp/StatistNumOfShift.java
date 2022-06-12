@@ -1,11 +1,8 @@
 package ptithcm.entity.tmp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.*;
 
-@NamedNativeQuery(name="statistNumOfShift", query="sp_statist_num_of_shift :month, :year", resultClass = StatistNumOfShift.class)
+@NamedNativeQuery(name="statistNumOfShift", query="exec sp_statist_num_of_shift :month, :year", resultClass = StatistNumOfShift.class)
 
 @Entity
 public class StatistNumOfShift {

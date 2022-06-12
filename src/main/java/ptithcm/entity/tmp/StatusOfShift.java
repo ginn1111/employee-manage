@@ -15,7 +15,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 	@NamedNativeQuery(
 			name="getStatusTimeTable",
 			query="exec sp_get_status_time_table :id_emp",
-			resultClass=StatusOfShift.class)
+			resultClass=StatusOfShift.class
+		)
 })
 
 @Entity

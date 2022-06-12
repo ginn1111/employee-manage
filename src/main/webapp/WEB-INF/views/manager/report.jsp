@@ -5,10 +5,13 @@
 <div class="container">
 	<tg:dialog-message message="${message}" />
 	<!-- Navigation -->
-<nav class="navigation active">
+	<nav class="navigation active">
 		<tg:navigation prefix="manager" link1="./manage.htm"
-			link2="./report.htm" uri1="manage" uri2="report" name1="Manage"
-			name2="Report" icon1="book-outline" icon2="clipboard-outline"/>
+			link2="./report.htm" link3="./employees.htm" link4="./tasks.htm"
+			uri1="manage" uri2="report" uri3="employees" uri4="tasks"
+			name1="Manage" name2="Report" name3="Employees" name4="Tasks"
+			icon1="book-outline" icon2="clipboard-outline" icon3="person-outline" icon4="flask-outline" 
+		/>
 	</nav>
 	<div class="main active">
 		<!-- Tool bar -->
@@ -93,10 +96,10 @@
 				<!-- REPORT REPORT EVALUATION OF EMP END -->
 			
 				<!-- LACK OF EMPS -->
-				<div class="card table--report">
+				<div id="lack-of-emp" class="card table--report">
 					<div class="utils">
 						<h5 class="utils__title">Lack of employees</h5>
-						<form class="form--filter" action="manager/report/search.htm">
+						<form class="form--filter" action="manager/report/search.htm#lack-of-emp">
 							<input type="date" name="date-search" value="${dateFilter}"/>
 							<button type="submit" class="btn--customize btn-confirm">Filter</button>
 						</form>
@@ -128,18 +131,18 @@
 				<!-- LACK OF EMPS END -->
 
 				<!-- REPORT SALARY -->
-				<div class="card table--salaries">
+				<div id="report-salary" class="card table--salaries">
 					<div class="utils">
 						<div class="utils__container">
 							<h5 class="utils__title">Employees's salary of month</h5>
-							<a href="manager/report/compute-salary.htm"
+							<a href="manager/report/compute-salary.htm#report-salary"
 									class="btn--customize btn--safe"
 								>
 								Compute
 							</a>
 						</div>
 						<form:form 
-							action="manager/report/get-salary.htm" 
+							action="manager/report/get-salary.htm#report-salary" 
 							class="manage__time manage__time--salaries"
 							modelAttribute="monthYear"
 						>
@@ -170,7 +173,7 @@
 								</span> 
 								<span class="content__note"> ${salary.note} </span>
 								<a
-									href="manager/report/${salary.idSalary}.htm">
+									href="manager/report/${salary.idSalary}.htm#report-salary">
 									<span class="table__item--edit"> <ion-icon
 											name="pencil-outline"></ion-icon>
 									</span>
@@ -185,7 +188,7 @@
 					<dialog class="modal"> 
 						<form:form 
 							class="form form--salaries"
-							action="manager/report/salary.htm?edit"
+							action="manager/report/salary.htm?edit#report-salary"
 							modelAttribute="salary"
 						>
 							<h5 class="form__title">Salaries</h5>
